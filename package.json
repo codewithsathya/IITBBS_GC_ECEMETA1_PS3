@@ -1,0 +1,20 @@
+{
+  "name": "iitbbs_gc_ecemeta1_ps3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm start start-server --prefix server",
+    "build": "npm run build --prefix client"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codewithsathya/IITBBS_GC_ECEMETA1_PS3.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/codewithsathya/IITBBS_GC_ECEMETA1_PS3/issues"
+  },
+  "homepage": "https://github.com/codewithsathya/IITBBS_GC_ECEMETA1_PS3#readme"
+}
