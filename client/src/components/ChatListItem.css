@@ -1,0 +1,77 @@
+.message-windows-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message-window {
+  display: flex;
+  gap: 15px;
+  width: 90%;
+  padding: 10px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  cursor: pointer;
+  margin: 5px 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.message-window:hover {
+  background-color: #f5f5f5;
+  transition: 0.2s ease-in-out;
+}
+
+.active {
+  background-color: #f5f5f5;
+}
+
+.profile-image img {
+  border-radius: 50%;
+}
+
+.message-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sender-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sender-name {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.message-time {
+  font-size: 0.9rem;
+  color: #999999;
+}
+
+.message-preview {
+  margin: 0;
+  color: #333333;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .message-window {
+    position: relative;
+  }
+
+  .active:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 5px;
+    background-color: #f56565;
+    border-radius: 10px 0 0 10px;
+  }
+}
