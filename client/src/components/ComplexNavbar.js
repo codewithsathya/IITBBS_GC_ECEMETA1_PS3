@@ -69,13 +69,13 @@ const style = {
 
 let setAuthOpen;
 
-function ProfileMenu() {
+function ProfileMenu({ open, setOpen }) {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const closeMenu = () => setIsMenuOpen(false);
 
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const [open, setOpen] = React.useState(false);
+  // const [open, setOpen] = React.useState(false);
   setAuthOpen = setOpen;
 
   const handleOpen = () => {
@@ -305,7 +305,7 @@ function NavList() {
   );
 }
 
-export default function ComplexNavbar() {
+export default function ComplexNavbar({ open, setOpen }) {
   const [isNavOpen, setIsNavOpen] = React.useState(false);
   const toggleIsNavOpen = () => setIsNavOpen((cur) => !cur);
 
@@ -340,7 +340,7 @@ export default function ComplexNavbar() {
         >
           <Bars2Icon className="h-6 w-6" />
         </IconButton>
-        <ProfileMenu />
+        <ProfileMenu open={open} setOpen={setOpen} />
       </div>
       <MobileNav open={isNavOpen} className="overflow-scroll">
         <NavList />
