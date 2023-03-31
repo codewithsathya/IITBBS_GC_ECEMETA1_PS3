@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Button } from "@material-tailwind/react/components/Button";
 import ComplexNavbar from "../components/ComplexNavbar";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [open, setOpen] = useState(false);
   const { user } = useSelector((state) => state.auth);
-
+  const navigate = useNavigate()
   return (
     <div>
       <ComplexNavbar open={open} setOpen={setOpen} />
@@ -24,6 +25,8 @@ export default function Home() {
               onClick={() => {
                 if (!user) {
                   setOpen(true);
+                }else{
+                  navigate("/lobby")
                 }
               }}
             >

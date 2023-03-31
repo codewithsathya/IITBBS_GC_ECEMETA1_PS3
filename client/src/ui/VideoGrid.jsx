@@ -3,6 +3,8 @@ import io from "socket.io-client"
 import { Peer } from "peerjs"
 import config from "../config.json"
 
+const connectConfig = config[config.env]
+
 function addVideoStream(videoGrid, video, stream){
     video.srcObject = stream
     video.addEventListener('loadedmetadata', () => {
@@ -33,12 +35,12 @@ export default function VideoGrid(){
 
     useEffect(() => {
         if(renderCount === 0){
-            const socket = io(config.socket_url)
+            const socket = io(connectConfig.socket_url)
             const videoGrid = document.getElementById('video-grid')
             const myPeer = new Peer(undefined, {
-                host: config.peer_server,
-                port: config.peer_server_port,
-                path: config.peer_server_path
+                host: connectConfig.peer_server,
+                port: connectConfig.peer_server_port,
+                path: connectConfig.peer_server_path
             })
             const myVideo = document.createElement('video')
             myVideo.muted = true

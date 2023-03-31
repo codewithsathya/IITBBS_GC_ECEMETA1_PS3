@@ -18,7 +18,9 @@ app.use(mongoSanitize());
 app.use(xss());
 
 // Cors
-app.use(cors({ credentials: true, origin: `${process.env.FRONT_END_URL}` }));
+const config = require("../client/src/config.json")
+const connectConfig = config[config.env]
+app.use(cors({ credentials: true, origin: connectConfig.frontend_url }));
 app.use(cookieParser());
 
 // Routes

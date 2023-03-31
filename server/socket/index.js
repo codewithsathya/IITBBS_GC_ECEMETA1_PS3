@@ -1,6 +1,8 @@
 let { Server } = require("socket.io")
 const customGenerationFunction = () => (Math.random().toString(36) + "0000000000000000000").substring(2, 16);
 const {ExpressPeerServer} = require("peer")
+const config = require("../../client/src/config.json")
+const connectConfig = config[config.env]
 
 let connectedPeers = {}
 const onConnection = (socket, peerServer) => {
@@ -24,15 +26,8 @@ module.exports = function createSocket(server, app){
         generateClientId: customGenerationFunction
     });
     app.use("/peerjs", peerServer)
-    let origin;
-    if(process.env.NODE_ENV === 'production'){
-        origin = process.env.PROD_FRONTEND_URL
-    }else if(process.env.NODE_ENV === 'development'){
-        origin = process.env.DEV_FRONTEND_URL
-    }else if(process.env.NODE_ENV === 'lan'){
-        origin = process.env.LAN_FRONTEND_URL
-    }
-    let io = new Server(server, { pintTimeout: 60000, cors: { origin }})
+
+    let io = new Server(server, { pintTimeout: 60000, cors: { origin: connectConfig.frontend_url }})
     io.on("connection", (socket) => {
         socket.on('join-room', (roomId, userId) => {
             socket.join(roomId)

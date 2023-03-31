@@ -1,7 +1,27 @@
 {
-    "peer_server": "localhost",
-    "peer_server_port": 3000,
-    "peer_server_path": "/peerjs/myapp",
-    "socket_url": "http://localhost:3000",
-    "backend_url": "http://localhost:3000"
+    "env": "development",
+    "production": {
+        "peer_server": "144.24.133.23",
+        "peer_server_port": 9000,
+        "peer_server_path": "/peerjs/myapp",
+        "socket_url": "https://convoapi.codewithsathya.com",
+        "backend_url": "https://convoapi.codewithsathya.com",
+        "frontend_url": "https://convo.codewithsathya.com"
+    },
+    "development": {
+        "peer_server": "localhost",
+        "peer_server_port": 3000,
+        "peer_server_path": "/peerjs/myapp",
+        "socket_url": "http://localhost:3000",
+        "backend_url": "http://localhost:3000",
+        "frontend_url": "http://localhost:3001"
+    },
+    "lan": {
+        "peer_server": "10.10.56.101",
+        "peer_server_port": 3000,
+        "peer_server_path": "/peerjs/myapp",
+        "socket_url": "http://10.10.56.101:3000",
+        "backend_url": "http://10.10.56.101:3000",
+        "frontend_url": "http://10.10.56.101:3001"
+    }
 }
