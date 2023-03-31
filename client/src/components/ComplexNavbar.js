@@ -29,10 +29,9 @@ import GoogleIcon from "@mui/icons-material/Google";
 import Logo from "../images/logo.svg";
 import Modal from "@mui/material/Modal";
 import { useDispatch, useSelector } from "react-redux";
-import { authActions } from "../store/auth";
 import Box from "@mui/material/Box";
 import GoogleAuth from "./GoogleAuth";
-import { checkStatus } from "../actions/auth";
+import { checkStatus, logout } from "../actions/auth";
 
 // profile menu component
 const profileMenuItems = [
@@ -68,14 +67,16 @@ const style = {
   p: 4,
 };
 
+let setAuthOpen;
+
 function ProfileMenu() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [signedIn, setSignedIn] = React.useState(false);
   const closeMenu = () => setIsMenuOpen(false);
 
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [open, setOpen] = React.useState(false);
+  setAuthOpen = setOpen;
 
   const handleOpen = () => {
     setOpen(true);
@@ -89,7 +90,7 @@ function ProfileMenu() {
   }, [user, handleClose]);
 
   const handleLogout = () => {
-    dispatch(authActions.logout());
+    dispatch(logout());
     // console.log("logged out");
   };
 
@@ -108,10 +109,11 @@ function ProfileMenu() {
               <Avatar
                 variant="circular"
                 size="sm"
-                alt="candice wu"
+                alt={user?.name}
                 className="border border-blue-500 p-0.5"
-                src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1480&q=80"
+                src={user?.profilePic}
               />
+
               <ChevronDownIcon
                 strokeWidth={2.5}
                 className={`h-3 w-3 transition-transform ${
@@ -270,8 +272,12 @@ const navListItems = [
 
 function NavList() {
   const dispatch = useDispatch();
-  const handleTest = () => {
-    dispatch(checkStatus());
+  const { user } = useSelector((state) => state.auth);
+  const handleTest = async () => {
+    await dispatch(checkStatus());
+    if (!user) {
+      setAuthOpen(true);
+    }
   };
 
   return (

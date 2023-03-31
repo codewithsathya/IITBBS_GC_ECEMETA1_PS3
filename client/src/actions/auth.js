@@ -26,5 +26,6 @@ export const checkStatus = () => async (dispatch) => {
     console.log(data);
   } catch (err) {
     console.log(err);
+    dispatch(authActions.logout());
   }
 };
