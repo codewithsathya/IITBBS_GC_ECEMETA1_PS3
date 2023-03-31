@@ -25,6 +25,7 @@ import {
   RocketLaunchIcon,
   Bars2Icon,
 } from "@heroicons/react/24/outline";
+import Logo from "../images/logo.svg"
 
 // profile menu component
 const profileMenuItems = [
@@ -214,8 +215,8 @@ const navListItems = [
 
 function NavList() {
   return (
-    <ul className="mb-4 mt-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center">
-      <NavListMenu />
+    <ul className="mb-4 mt-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-end">
+      {/* <NavListMenu /> */}
       {navListItems.map(({ label, icon }, key) => (
         <Typography
           key={label}
@@ -247,14 +248,15 @@ export default function ComplexNavbar() {
   }, []);
 
   return (
-    <Navbar className="mx-auto max-w-screen-xl p-2 lg:rounded lg:pl-6">
+    <Navbar className="mx-auto max-w-screen-3xl py-2 px-4 lg:rounded-none lg:pl-6">
       <div className="relative mx-auto flex items-center text-blue-gray-900">
+        {/* <img src={Logo} alt="Convo" width={100}/> */}
         <Typography
           as="a"
           href="#"
-          className="mr-4 ml-2 cursor-pointer py-1.5 font-medium"
+          className="mr-4 ml-2 cursor-pointer py-1.5 font-extrabold"
         >
-          Material Tailwind
+          Convo
         </Typography>
         <div className="absolute top-2/4 left-2/4 hidden -translate-x-2/4 -translate-y-2/4 lg:block">
           <NavList />
