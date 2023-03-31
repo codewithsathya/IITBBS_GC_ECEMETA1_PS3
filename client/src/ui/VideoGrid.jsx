@@ -6,11 +6,13 @@ import { BsMicFill, BsImage } from "react-icons/bs";
 import { FaVideo, FaVideoSlash } from "react-icons/fa";
 import { AiOutlineUserAdd, AiFillSetting } from "react-icons/ai";
 import "./VideoGrid.css";
+import VideoTile from "../components/VideoTile";
 
 const connectConfig = config[config.env];
 
 function addVideoStream(stream, setPeerVideos, call) {
-  setPeerVideos((prevVal) => [...prevVal, { id: call.id, stream }]);
+  console.log("id", call)
+  setPeerVideos((prevVal) => {return {...prevVal, [call.connectionId]: stream}});
 }
 
 function connectToNewUser(
@@ -29,7 +31,7 @@ function connectToNewUser(
 
   call.on("close", () => {
     console.log("remove video");
-    setPeerVideos((prevVal) => prevVal.filter((video) => video.id !== call.id));
+    setPeerVideos((prevVal) =>  delete prevVal[call.connectionId]);
   });
   setPeers({ ...peers, [userId]: call });
 }
@@ -37,9 +39,9 @@ function connectToNewUser(
 export default function VideoGrid() {
   const [renderCount, setRenderCount] = useState(0);
   const [peers, setPeers] = useState({});
-  const ref = useRef();
+  const ref = useRef(null);
   const [myVideo, setMyVideo] = useState({ ref });
-  const [peerVideos, setPeerVideos] = useState([]);
+  const [peerVideos, setPeerVideos] = useState({});
 
   useEffect(() => {
     if (renderCount === 0) {
@@ -81,17 +83,8 @@ export default function VideoGrid() {
               myPeer,
               stream,
               userId,
-              setPeerVideos
+              setPeerVideos,
             );
-          });
-
-          socket.on("connected-peers", (connectedPeers) => {
-            console.log(connectedPeers);
-            let existingUsers = JSON.parse(connectedPeers);
-            for (let userId in Object.keys(existingUsers)) {
-              if (existingUsers[userId] !== 0) {
-              }
-            }
           });
         });
 
@@ -124,10 +117,16 @@ export default function VideoGrid() {
     }
   }, [myVideo]);
 
+
   return (
     <div>
       <div id="video-grid" className="grid-container">
         <video ref={myVideo.ref} muted />
+        {Object.keys(peerVideos).map(connectionId => {
+          let stream = peerVideos[connectionId]
+          return(
+          <VideoTile stream={stream} key={connectionId}/>
+        )})}
       </div>
       <div className="flex items-center justify-center py-2">
         <div className="p-4 border-opacity-50">

@@ -42,11 +42,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-const dirname = path.resolve("..")
-app.use(express.static(path.join(dirname, "/client/build")))
-app.get("*", (req, res) => {
-    res.sendFile(path.resolve(dirname, "client", "build", "index.html"))
-})
+// const dirname = path.resolve("..")
+// app.use(express.static(path.join(dirname, "/client/build")))
+// app.get("*", (req, res) => {
+//     res.sendFile(path.resolve(dirname, "client", "build", "index.html"))
+// })
 
 let server;
 const port = process.env.PORT || 3000;
