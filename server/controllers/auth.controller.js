@@ -22,7 +22,7 @@ exports.googleLogin = async (req, res, next) => {
           httpOnly: true,
         })
         .status(200)
-        .json({ result: user, token });
+        .json({ result: user });
     } else {
       const newUser = new User({
         name,
@@ -48,6 +48,20 @@ exports.googleLogin = async (req, res, next) => {
         .status(201)
         .json({ result: savedUser });
     }
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.logout = async (req, res, next) => {
+  res.clearCookie("access_token");
+  res.send({ success: true });
+};
+
+exports.checkStatus = async (req, res, next) => {
+  try {
+    const currUser = await User.findById(req.userId);
+    res.status(200).json(currUser);
   } catch (err) {
     next(err);
   }

@@ -14,7 +14,6 @@ const routes = require("./routes");
 app.use(helmet());
 
 // Parsing
-app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -23,8 +22,9 @@ app.use(mongoSanitize());
 app.use(xss());
 
 // Cors
-app.use(cors());
+app.use(cors({ credentials: true }));
 app.use("*", cors());
+app.use(cookieParser());
 
 // Routes
 app.use("/api", routes);
