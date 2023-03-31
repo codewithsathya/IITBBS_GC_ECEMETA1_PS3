@@ -32,10 +32,6 @@ export default function Home() {
             >
               Create a meeting
             </Button>
-            {/* <p className="m-auto max-w-[70%] py-4 text-lg leading-7 text-gray-500 dark:text-gray-400">
-                        I&apos;m a full-stack web developer studying in IIT Bhubaneswar, India. I love
-                        programming, reading tech blogs and learning new technologies.
-                    </p> */}
           </div>
         </div>
       </div>
