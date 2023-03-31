@@ -22,8 +22,7 @@ app.use(mongoSanitize());
 app.use(xss());
 
 // Cors
-app.use(cors({ credentials: true }));
-app.use("*", cors());
+app.use(cors({ credentials: true, origin: `${process.env.FRONT_END_URL}` }));
 app.use(cookieParser());
 
 // Routes
