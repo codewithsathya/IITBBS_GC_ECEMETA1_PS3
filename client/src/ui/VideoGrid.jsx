@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { Peer } from "peerjs";
 import config from "../config.json";
@@ -7,45 +7,50 @@ import { FaVideo, FaVideoSlash } from "react-icons/fa";
 import { AiOutlineUserAdd, AiFillSetting } from "react-icons/ai";
 import "./VideoGrid.css";
 
-function addVideoStream(videoGrid, video, stream) {
-  video.srcObject = stream;
-  video.addEventListener("loadedmetadata", () => {
-    video.play();
-  });
-  videoGrid.append(video);
+const connectConfig = config[config.env];
+
+function addVideoStream(stream, setPeerVideos, call) {
+  setPeerVideos((prevVal) => [...prevVal, { id: call.id, stream }]);
 }
 
-function connectToNewUser(setPeers, peers, myPeer, videoGrid, stream, userId) {
+function connectToNewUser(
+  setPeers,
+  peers,
+  myPeer,
+  stream,
+  userId,
+  setPeerVideos
+) {
   const call = myPeer.call(userId, stream);
-  const video = document.createElement("video");
   call.on("stream", (userVideoStream) => {
     console.log("connect to new user call stream");
-    addVideoStream(videoGrid, video, userVideoStream);
+    addVideoStream(userVideoStream, setPeerVideos, call);
   });
 
   call.on("close", () => {
     console.log("remove video");
-    video.remove();
+    setPeerVideos((prevVal) => prevVal.filter((video) => video.id !== call.id));
   });
   setPeers({ ...peers, [userId]: call });
 }
 
 export default function VideoGrid() {
   const [renderCount, setRenderCount] = useState(0);
-
   const [peers, setPeers] = useState({});
+  const ref = useRef();
+  const [myVideo, setMyVideo] = useState({ ref });
+  const [peerVideos, setPeerVideos] = useState([]);
 
   useEffect(() => {
     if (renderCount === 0) {
-      const socket = io(config.socket_url);
-      const videoGrid = document.getElementById("video-grid");
+      const socket = io(connectConfig.socket_url);
       const myPeer = new Peer(undefined, {
-        host: config.peer_server,
-        port: config.peer_server_port,
-        path: config.peer_server_path,
+        host: connectConfig.peer_server,
+        port: connectConfig.peer_server_port,
+        path: connectConfig.peer_server_path,
       });
-      const myVideo = document.createElement("video");
-      myVideo.muted = true;
+      //   const myVideo = document.createElement("video");
+      //   myVideo.muted = true;
 
       navigator.mediaDevices
         .getUserMedia({
@@ -53,16 +58,18 @@ export default function VideoGrid() {
           audio: true,
         })
         .then((stream) => {
-          addVideoStream(videoGrid, myVideo, stream);
+          //   addVideoStream(stream);
+          setMyVideo({ ref, stream });
+          console.log(stream);
           myPeer.on("call", (call) => {
             console.log("peer call");
             console.log(call);
             call.answer(stream);
-            const userVideo = document.createElement("video");
+            // const userVideo = document.createElement("video");
             call.on("stream", (userVideoStream) => {
               console.log("peer stream");
               console.log(userVideoStream);
-              addVideoStream(videoGrid, userVideo, userVideoStream);
+              addVideoStream(userVideoStream, setPeerVideos, call);
             });
           });
 
@@ -72,9 +79,9 @@ export default function VideoGrid() {
               setPeers,
               peers,
               myPeer,
-              videoGrid,
               stream,
-              userId
+              userId,
+              setPeerVideos
             );
           });
 
@@ -107,9 +114,21 @@ export default function VideoGrid() {
     console.log("toggle camera");
   };
 
+  useEffect(() => {
+    if (myVideo.stream) {
+      const video = myVideo.ref.current;
+      video.srcObject = myVideo.stream;
+      video.addEventListener("loadedmetadata", () => {
+        video.play();
+      });
+    }
+  }, [myVideo]);
+
   return (
     <div>
-      <div id="video-grid" className="grid-container"></div>
+      <div id="video-grid" className="grid-container">
+        <video ref={myVideo.ref} muted />
+      </div>
       <div className="flex items-center justify-center py-2">
         <div className="p-4 border-opacity-50">
           <BsMicFill />

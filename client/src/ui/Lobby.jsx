@@ -4,6 +4,7 @@ import { BsMicFill, BsImage } from "react-icons/bs"
 import { FaVideo, FaVideoSlash } from "react-icons/fa"
 import { AiOutlineUserAdd, AiFillSetting } from "react-icons/ai"
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Lobby(){
     const [cameraTurnedOn, setCamera] = useState(false)
@@ -16,6 +17,8 @@ export default function Lobby(){
         }
     }
 
+    const navigate = useNavigate();
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2">
             <SelfVideo isTurnedOn={cameraTurnedOn}/>
@@ -25,7 +28,7 @@ export default function Lobby(){
                     <Input variant="outlined" label="Enter your name" className=" bg-white w-[90vw] md:w-[270px]" size="lg"/>
                 </div>
                 <div>
-                    <Button size="md" className="w-[90vw] md:w-[270px]">Join meeting</Button>
+                    <Button size="md" className="w-[90vw] md:w-[270px]" onClick={() => navigate("/grid")}>Join meeting</Button>
                 </div>
                 <div className="flex items-center justify-between py-2">
                     <div className="p-4 border-opacity-50"><BsMicFill /></div>
