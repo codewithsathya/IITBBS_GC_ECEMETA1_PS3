@@ -200,15 +200,15 @@ function NavListMenu() {
 // nav list component
 const navListItems = [
   {
-    label: "Account",
+    label: "Create a new meeting",
     icon: UserCircleIcon,
   },
   {
-    label: "Blocks",
+    label: "Join meeting",
     icon: CubeTransparentIcon,
   },
   {
-    label: "Docs",
+    label: "Schedule meeting",
     icon: CodeBracketSquareIcon,
   },
 ];
@@ -248,7 +248,8 @@ export default function ComplexNavbar() {
   }, []);
 
   return (
-    <Navbar className="mx-auto max-w-screen-3xl py-2 px-4 lg:rounded-none lg:pl-6">
+    // <Navbar className="mx-auto max-w-screen-3xl py-2 px-4 lg:rounded-none lg:pl-6">
+    <Navbar className="sticky inset-0 z-10 h-max max-w-full rounded-none py-2 px-4 lg:px-8 lg:py-4">
       <div className="relative mx-auto flex items-center justify-between text-blue-gray-900">
         {/* <img src={Logo} alt="Convo" width={100}/> */}
         <Typography
