@@ -1,4 +1,5 @@
 const { Meeting } = require("../models/index");
+const { sendMail } = require("../helper/mailer");
 
 exports.createMeeting = async (req, res, next) => {
   const { title } = req.body;
@@ -33,6 +34,21 @@ exports.addMembers = async (req, res, next) => {
       },
       { new: true }
     );
+
+    const meetingCode = updatedMeeting.code;
+
+    const memberMails = updatedMeeting.members
+      .map((memb) => memb.email)
+      .join(",");
+
+    const mailOptions = {
+      from: `${process.env.MAIL_EMAIL}`,
+      to: memberMails,
+      subject: "Sending Convo Meeting link",
+      text: `http://localhost:3001/meeting/${meetingCode}`,
+    };
+
+    await sendMail(mailOptions);
 
     res.status(200).json(updatedMeeting);
   } catch (err) {
