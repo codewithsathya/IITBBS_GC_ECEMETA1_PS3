@@ -5,6 +5,8 @@ import "./Test.css";
 import { Peer } from "peerjs";
 import io from "socket.io-client";
 
+import Button from "@material-tailwind/react/components/Button"
+
 function Test() {
   const peers = {};
   const videoGrid = document.getElementById("video-grid");
@@ -15,6 +17,7 @@ function Test() {
     port: 3000,
     path: "/peerjs/myapp",
   });
+
   let myVideoStream;
   navigator.mediaDevices
     .getUserMedia({
@@ -35,22 +38,26 @@ function Test() {
         connectToNewUser(userID, stream);
       });
     });
-  peer.on("open", (id) => {
-    socket.emit("join-room", id);
+  
+  const socket = io("http://localhost:3000");
+  socket.on("connected", (args) => {
+    console.log(args)
   });
 
-  const socket = io("http://localhost:3000");
-  socket.on("connected", () => {
-    console.log("Connected");
-  });
+  const onClick = () => {
+    socket.emit("test")
+  }
+
   socket.on("user-disconnected", (userID) => {
     console.log("user disconnected-- closing peers", userID);
     peers[userID] && peers[userID].close();
     removeVideo(userID);
   });
+
   socket.on("disconnected", () => {
     console.log("Disconnected");
   });
+  
   socket.on("user-connected", (userID) => {
     console.log("user connected", userID);
     connectToNewUser(userID, myVideoStream);
@@ -84,6 +91,7 @@ function Test() {
 
   return (
     <div id="room-container">
+      <Button onClick={onClick}>Click</Button>
       <div id="video-grid"></div>
     </div>
   );

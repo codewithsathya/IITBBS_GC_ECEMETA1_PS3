@@ -41,25 +41,16 @@ let server;
 const port = process.env.PORT || 3000;
 const postMongoConnection = () => {
   server = app.listen(port, () => console.log(`Listening on port ${port}`))
-  createSocket(server)
+  createSocket(server, app)
 }
 
 mongoose.set("strictQuery", true);
 const customGenerationFunction = () => (Math.random().toString(36) + "0000000000000000000").substring(2, 16);
 
-
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
     postMongoConnection()
-    const peerServer = ExpressPeerServer(server, {
-      path: "/myapp",
-      generateClientId: customGenerationFunction
-    });
-    app.use("/peerjs", peerServer);
-    peerServer.on('connection', (client) => {
-      console.log(client)
-    })
   })
   .catch((err) => {
     throw err;
