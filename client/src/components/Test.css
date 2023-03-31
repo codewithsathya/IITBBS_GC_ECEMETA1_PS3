@@ -1,6 +1,20 @@
-.box {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-  background-color: #000;
+/* .grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 0.4fr));
+  
+  /* max-height: 10%; */
+  
+  
+
+/* .grid-item {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  border-radius: 5px;
+
+ 
+}  */
+
+.App {
+  font-family: sans-serif;
+  text-align: center;
 }

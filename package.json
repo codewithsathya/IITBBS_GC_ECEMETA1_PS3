@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/codewithsathya/IITBBS_GC_ECEMETA1_PS3/issues"
   },
-  "homepage": "https://github.com/codewithsathya/IITBBS_GC_ECEMETA1_PS3#readme"
+  "homepage": "https://github.com/codewithsathya/IITBBS_GC_ECEMETA1_PS3#readme",
+  "dependencies": {
+    "react-fb-image-video-grid": "^0.1.10"
+  }
 }
