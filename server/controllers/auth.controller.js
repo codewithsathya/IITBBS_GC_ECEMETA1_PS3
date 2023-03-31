@@ -1,4 +1,5 @@
 const { User } = require("../models/index");
+const jwt = require("jsonwebtoken");
 
 exports.googleLogin = async (req, res, next) => {
   const { name, profilePic, email } = req.body;
