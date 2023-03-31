@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Button } from "@material-tailwind/react/components/Button";
 import ComplexNavbar from "../components/ComplexNavbar";
+import { useSelector } from "react-redux";
 
 export default function Home() {
   const [open, setOpen] = useState(false);
+  const { user } = useSelector((state) => state.auth);
 
   return (
     <div>
@@ -19,7 +21,11 @@ export default function Home() {
             </h1>
             <Button
               className="my-4 leading-6 font-semibold text-md"
-              onClick={() => setOpen(true)}
+              onClick={() => {
+                if (!user) {
+                  setOpen(true);
+                }
+              }}
             >
               Create a meeting
             </Button>
