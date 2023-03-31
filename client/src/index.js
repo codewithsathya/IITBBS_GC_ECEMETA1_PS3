@@ -10,7 +10,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ThemeProvider } from "@material-tailwind/react";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <Provider store={store}>
       <ThemeProvider>
         <GoogleOAuthProvider clientId="216168406592-64kfuc404f6apspc4l9pjo9ub6b1j9fq.apps.googleusercontent.com">
@@ -20,5 +20,5 @@ root.render(
         </GoogleOAuthProvider>
       </ThemeProvider>
     </Provider>
-  </React.StrictMode>
+  // </React.StrictMode>
 );

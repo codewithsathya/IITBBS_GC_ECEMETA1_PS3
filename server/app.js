@@ -1,15 +1,12 @@
 require("dotenv").config();
 const express = require("express");
-const helmet = require("helmet");
 const xss = require("xss-clean");
 const mongoSanitize = require("express-mongo-sanitize");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const jwt = require("jsonwebtoken");
 const app = express();
 const routes = require("./routes");
-const { ExpressPeerServer } = require("peer")
 const createSocket = require('./socket')
 
 // Parsing
@@ -39,14 +36,13 @@ app.use((err, req, res, next) => {
 
 let server;
 const port = process.env.PORT || 3000;
+
 const postMongoConnection = () => {
   server = app.listen(port, () => console.log(`Listening on port ${port}`))
   createSocket(server, app)
 }
 
 mongoose.set("strictQuery", true);
-const customGenerationFunction = () => (Math.random().toString(36) + "0000000000000000000").substring(2, 16);
-
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {

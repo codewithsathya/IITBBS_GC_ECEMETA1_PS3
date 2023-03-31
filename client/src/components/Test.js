@@ -34,34 +34,36 @@ function Test() {
           addVideoStream(video, userVideoStream);
         });
       });
-      socket.on("user-connected", (userID) => {
-        connectToNewUser(userID, stream);
-      });
+      // socket.on("user-connected", (userID) => {
+      //   connectToNewUser(userID, stream);
+      // });
     });
   
-  const socket = io("http://localhost:3000");
-  socket.on("connected", (args) => {
-    console.log(args)
-  });
-
-  const onClick = () => {
-    socket.emit("test")
-  }
-
-  socket.on("user-disconnected", (userID) => {
-    console.log("user disconnected-- closing peers", userID);
-    peers[userID] && peers[userID].close();
-    removeVideo(userID);
-  });
-
-  socket.on("disconnected", () => {
-    console.log("Disconnected");
-  });
+  useEffect(() => {
+    const socket = io("http://localhost:3000");
+    socket.on("connected", (args) => {
+      console.log(args)
+    });
+    socket.on("user-disconnected", (userID) => {
+      console.log("user disconnected-- closing peers", userID);
+      peers[userID] && peers[userID].close();
+      removeVideo(userID);
+    });
   
-  socket.on("user-connected", (userID) => {
-    console.log("user connected", userID);
-    connectToNewUser(userID, myVideoStream);
-  });
+    socket.on("disconnected", () => {
+      console.log("Disconnected");
+    });
+    socket.on("user-connected", (userID) => {
+      console.log("user connected", userID);
+      connectToNewUser(userID, myVideoStream);
+    });
+    return () => socket.disconnect()
+  }, [])
+
+  // const onClick = () => {
+  //   socket.emit("test")
+  // }
+  
 
   const connectToNewUser = (userID, stream) => {
     console.log("connecting to new user", userID);
@@ -91,7 +93,7 @@ function Test() {
 
   return (
     <div id="room-container">
-      <Button onClick={onClick}>Click</Button>
+      {/* <Button onClick={onClick}>Click</Button> */}
       <div id="video-grid"></div>
     </div>
   );

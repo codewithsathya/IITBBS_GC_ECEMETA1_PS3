@@ -1,6 +1,7 @@
 import axios from "axios";
+import config from "../config.json"
 
-const API = axios.create({ baseURL: "http://localhost:3000" });
+const API = axios.create({ baseURL: config.backend_url });
 
 // API.interceptors.request.use((req) => {});
 API.defaults.withCredentials = true;
