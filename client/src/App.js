@@ -5,6 +5,8 @@ import Test from "./components/Test";
 import { Button } from "@material-tailwind/react";
 import Home from "./ui/Home";
 import Lobby from "./ui/Lobby";
+import Peers from "./ui/Peers";
+import VideoGrid from "./ui/VideoGrid";
 
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />}/>
         <Route path="/lobby" element={<Lobby />}/>
+        <Route path="/peers"  element={<Peers />}/>
+        <Route path="/grid" element={<VideoGrid />} />
       </Routes>
     </BrowserRouter>
   )

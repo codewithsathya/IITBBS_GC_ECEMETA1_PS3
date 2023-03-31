@@ -2,10 +2,11 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "start-server": "npm start",
-    "start": "nodemon bin/index.js"
+    "dev": "nodemon app.js",
+    "start": "node app.js"
   },
   "author": "",
   "license": "ISC",
@@ -20,6 +21,8 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.3",
     "mongoose-autopopulate": "^1.0.0",
+    "peer": "^1.0.0",
+    "socket.io": "^4.6.1",
     "validator": "^13.9.0",
     "xss-clean": "^0.1.1"
   }

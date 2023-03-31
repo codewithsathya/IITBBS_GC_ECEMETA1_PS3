@@ -9,9 +9,7 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const app = express();
 const routes = require("./routes");
-
-// Security
-app.use(helmet());
+const { ExpressPeerServer } = require("peer")
 
 // Parsing
 app.use(express.json());
@@ -38,4 +36,36 @@ app.use((err, req, res, next) => {
   });
 });
 
-module.exports = app;
+let server;
+const port = process.env.PORT || 3000;
+const postMongoConnection = () => {
+  server = app.listen(port, () => console.log(`Listening on port ${port}`))
+  io = require("socket.io")(server, {
+    pintTimeout: 60000,
+    cors: {
+      origin: process.env.NODE_ENV === 'production' ? process.env.PROD_API_URL: process.env.DEV_API_URL
+    }
+  })
+}
+
+mongoose.set("strictQuery", true);
+const customGenerationFunction = () =>
+	(Math.random().toString(36) + "0000000000000000000").substr(2, 16);
+
+
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
+    postMongoConnection()
+    const peerServer = ExpressPeerServer(server, {
+      path: "/myapp",
+      generateClientId: customGenerationFunction
+    });
+    app.use("/peerjs", peerServer);
+    peerServer.on('connection', (client) => {
+      console.log(client)
+    })
+  })
+  .catch((err) => {
+    throw err;
+  });
