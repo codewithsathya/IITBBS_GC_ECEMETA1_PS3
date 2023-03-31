@@ -8,6 +8,12 @@ const cors = require("cors");
 const app = express();
 const routes = require("./routes");
 const createSocket = require('./socket')
+const http = require('http')
+const https = require('https')
+const fs = require('fs')
+const path = require('path')
+
+app.enable("trust proxy");
 
 // Parsing
 app.use(express.json());
@@ -36,12 +42,27 @@ app.use((err, req, res, next) => {
   });
 });
 
+const dirname = path.resolve("..")
+app.use(express.static(path.join(dirname, "/client/build")))
+app.get("*", (req, res) => {
+    res.sendFile(path.resolve(dirname, "client", "build", "index.html"))
+})
+
 let server;
 const port = process.env.PORT || 3000;
 
+let options;
 const postMongoConnection = () => {
-  server = app.listen(port, () => console.log(`Listening on port ${port}`))
-  createSocket(server, app)
+  options = {
+    key: fs.readFileSync('./cert/key.pem'),
+    cert: fs.readFileSync('./cert/certificate.pem')
+  };
+  if(config.https){
+    server = https.createServer(options, app)
+  }else
+    server = http.createServer(app)
+  server.listen(port)
+  createSocket(server, app, options)
 }
 
 mongoose.set("strictQuery", true);

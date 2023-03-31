@@ -1,4 +1,5 @@
 {
+    "https": false,
     "env": "development",
     "production": {
         "peer_server": "144.24.133.23",
@@ -17,11 +18,11 @@
         "frontend_url": "http://localhost:3001"
     },
     "lan": {
-        "peer_server": "10.10.56.101",
-        "peer_server_port": 3000,
+        "peer_server": "10.10.56.56",
+        "peer_server_port": 443,
         "peer_server_path": "/peerjs/myapp",
-        "socket_url": "http://10.10.56.101:3000",
-        "backend_url": "http://10.10.56.101:3000",
-        "frontend_url": "http://10.10.56.101:3001"
+        "socket_url": "https://10.10.56.56",
+        "backend_url": "https://10.10.56.56",
+        "frontend_url": "https://10.10.56.56"
     }
 }

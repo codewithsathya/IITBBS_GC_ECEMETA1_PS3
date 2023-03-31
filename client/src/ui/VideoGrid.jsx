@@ -37,11 +37,12 @@ export default function VideoGrid(){
         if(renderCount === 0){
             const socket = io(connectConfig.socket_url)
             const videoGrid = document.getElementById('video-grid')
-            const myPeer = new Peer(undefined, {
-                host: connectConfig.peer_server,
-                port: connectConfig.peer_server_port,
-                path: connectConfig.peer_server_path
-            })
+            // const myPeer = new Peer(undefined, {
+            //     host: connectConfig.peer_server,
+            //     port: connectConfig.peer_server_port,
+            //     path: connectConfig.peer_server_path
+            // })
+            const myPeer = new Peer()
             const myVideo = document.createElement('video')
             myVideo.muted = true
 
