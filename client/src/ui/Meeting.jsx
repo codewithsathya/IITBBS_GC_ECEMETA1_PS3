@@ -89,6 +89,7 @@ export default function Meeting(props) {
                   stream={pinnedStream}
                   className="pinned-video"
                   muted={true}
+                  handleClick={()=>{}}
                 />
               )}
           </div>
