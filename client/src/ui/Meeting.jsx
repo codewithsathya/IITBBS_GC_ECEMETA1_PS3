@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createSocketConnectionInstance } from "../helpers/connection";
 import VideoTile from "../components/VideoTile";
+import adapter from 'webrtc-adapter';
 
 import { BsMicFill, BsImage } from "react-icons/bs";
 import { FaVideo, FaVideoSlash } from "react-icons/fa";
@@ -13,15 +14,12 @@ export default function Meeting(props) {
 
   let [switcher, setSwitcher] = useState(false);
 
-  const [cameraStatus, setCameraStatus] = useState(false);
-  const [micStatus, setMicStatus] = useState(true);
+    const [cameraStatus, setCameraStatus] = useState(true);
+    const [micStatus, setMicStatus] = useState(true);
 
-  const [userDetails, setUserDetails] = useState({
-    cameraEnabled: true,
-    micEnabled: true,
-  });
-  const [idStreamMap, setIdStreamMap] = useState(null);
-  console.log(userDetails);
+    const [userDetails, setUserDetails] = useState({});
+    const [idStreamMap, setIdStreamMap] = useState(null)
+    console.log(userDetails)
 
   const handleCamera = () => {
     const { toggleCamera } = connectionInstance.current;
@@ -29,37 +27,44 @@ export default function Meeting(props) {
     setCameraStatus(!cameraStatus);
   };
 
-  useEffect(() => {
-    return () => {
-      connectionInstance.current?.destroyConnection();
-    };
-  }, []);
-
-  const updateUI = () => {
-    setSwitcher(!switcher);
-    const videoContainer = { ...connectionInstance.current.videoContainer };
-    const map = {};
-    for (let key of Object.keys(videoContainer)) {
-      map[key] = videoContainer[key].stream;
+    const handleMic = () => {
+      const { toggleMic } = connectionInstance.current;
+      toggleMic({ video: cameraStatus, audio: !micStatus })
+      setMicStatus(!micStatus)
     }
-    setIdStreamMap(map);
-  };
 
-  useEffect(() => {
-    connectionInstance.current = createSocketConnectionInstance(
-      {
-        updateInstance,
-        userDetails,
-      },
-      updateUI
-    );
-  }, []);
+    useEffect(() => {
+        return () => {
+            connectionInstance.current?.destroyConnection();
+        };
+    }, []);
 
-  const updateInstance = (key, value) => {};
+    const updateUI = () => {
+      setSwitcher(!switcher);
+      const videoContainer = { ...connectionInstance.current.videoContainer };
+      const map = {};
+      for (let key of Object.keys(videoContainer)) {
+        map[key] = videoContainer[key].stream;
+      }
+      setIdStreamMap(map);
+    };
 
-  const handleClick = () => {
-    console.log(connectionInstance);
-  };
+    useEffect(() => {
+      connectionInstance.current = createSocketConnectionInstance(
+        {
+          updateInstance,
+          cameraStatus,
+          micStatus
+        },
+        updateUI
+      );
+    }, []);
+
+    const updateInstance = (key, value) => {};
+
+    const handleClick = () => {
+      console.log(connectionInstance);
+    };
 
   const toggleScreenShare = () => {};
 
