@@ -64,7 +64,9 @@ export default function Meeting(props) {
   const toggleScreenShare = () => {};
 
   const [chatOpen, setChatOpen] = useState(false);
+  const [pinnedStream, setPinnedStream] = useState(null);
   const cameraTurnedOn = true;
+
   return (
     <div className="wrapper">
       <div className={chatOpen ? "chat" : "closed"}>
@@ -79,7 +81,7 @@ export default function Meeting(props) {
               idStreamMap &&
               idStreamMap[connectionInstance.current.myId] && (
                 <VideoTile
-                  stream={idStreamMap[connectionInstance.current.myId]}
+                  stream={pinnedStream}
                   className="pinned-video"
                   muted={true}
                 />
@@ -95,6 +97,7 @@ export default function Meeting(props) {
                   <VideoTile
                     stream={idStreamMap[connectionInstance.current.myId]}
                     muted={true}
+                    handleClick={setPinnedStream}
                   />
                 )}
             </div>
@@ -102,7 +105,13 @@ export default function Meeting(props) {
               {idStreamMap &&
                 Object.keys(idStreamMap).map((id) => {
                   if (connectionInstance.current.myId !== id)
-                    return <VideoTile stream={idStreamMap[id]} key={id} />;
+                    return (
+                      <VideoTile
+                        stream={idStreamMap[id]}
+                        key={id}
+                        handleClick={setPinnedStream}
+                      />
+                    );
                 })}
             </div>
           </div>
