@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createSocketConnectionInstance } from "../helpers/connection";
 import VideoTile from "../components/VideoTile";
-import adapter from "webrtc-adapter";
-import Lobby from "../ui/Lobby";
 
 import { BsMicFill, BsImage, BsMicMuteFill } from "react-icons/bs";
 import {MdOutlineStopScreenShare, MdOutlineScreenShare} from "react-icons/md"
@@ -13,6 +11,7 @@ import "./VideoGrid.css";
 
 export default function Meeting(props) {
   let connectionInstance = useRef(null);
+  const [messages, setMessages] = useState([]);
 
   let [switcher, setSwitcher] = useState(false);
 
@@ -53,6 +52,11 @@ export default function Meeting(props) {
       connectionInstance.current?.destroyConnection();
     };
   }, []);
+  useEffect(() => {
+    return () => {
+      connectionInstance.current?.destroyConnection();
+    };
+  }, []);
 
   const updateUI = () => {
     setSwitcher(!switcher);
@@ -70,6 +74,16 @@ export default function Meeting(props) {
     }
     setIdStreamMap(map);
     setIdScreenStreamMap(screenMap);
+  };
+
+	const updateMessage = () => {
+    if (connectionInstance.current.message) {
+      const messagesList = connectionInstance.current.message;
+      console.log("Instance", messagesList);
+      setMessages(messagesList);
+      console.log("messagesList in meeting", messagesList);
+      console.log("messages in meeting", messages);
+    }
   };
 
   useEffect(() => {
@@ -98,7 +112,13 @@ export default function Meeting(props) {
   return (
     <div className="wrapper">
       <div className={chatOpen ? "chat" : "closed"}>
-        {chatOpen && <ChatBox />}
+        {chatOpen && (
+          <ChatBox
+            connectionInstance={connectionInstance.current}
+            messages={messages}
+            setMessages={setMessages}
+          />
+        )}
       </div>
       <div>
         <div className={!chatOpen ? "grid-container" : "grid-container closed"}>
@@ -175,12 +195,12 @@ export default function Meeting(props) {
           }
         >
           <div className="p-4 border-opacity-50" onClick={handleMic}>
-            {micStatus ? <BsMicFill /> : <BsMicMuteFill />}
+            {!micStatus ? <BsMicFill /> : <BsMicMuteFill />}
           </div>
           <div className="p-4" onClick={handleCamera}>
             {cameraStatus ? <FaVideo /> : <FaVideoSlash />}
           </div>
-          <div className="p-4">
+          <div className="p-4" onClick={() => setChatOpen((prev) => !prev)}>
             <AiOutlineUserAdd />
           </div>
           <div className="p-4">

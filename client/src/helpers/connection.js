@@ -22,27 +22,29 @@ const initializeSocketConnection = () => {
 };
 
 class Connection {
-  videoContainer = {};
-  screenShareContainer = {};
-  message = [];
-  settings;
-  streaming = false;
-  screenStreaming = false;
-  myPeer;
-  screenSharePeer;
-  socket;
-  updateUI;
-  myId = "";
+    videoContainer = {};
+    screenShareContainer = {};
+    message = [];
+    settings;
+    streaming = false;
+    screenStreaming = false;
+    myPeer;
+    screenSharePeer;
+    socket;
+    updateUI;
+    updateMessage;
+    myId = "";
 
-  constructor(settings, updateUI) {
-    this.settings = settings;
-    this.updateUI = updateUI;
-    this.myPeer = initializePeerConnection();
-    this.screenSharePeer = initializePeerConnection();
-    this.socket = initializeSocketConnection();
-    this.initializeSocketEvents();
-    this.initializePeerEvents();
-  }
+    constructor(settings, updateUI, updateMessage) {
+      this.settings = settings;
+      this.updateUI = updateUI;
+      this.updateMessage = updateMessage;
+      this.myPeer = initializePeerConnection();
+      this.screenSharePeer = initializePeerConnection();
+      this.socket = initializeSocketConnection();
+      this.initializeSocketEvents();
+      this.initializePeerEvents();
+    }
 
     initializeSocketEvents = () => {
       this.socket.on("connect", () => {
@@ -114,8 +116,6 @@ class Connection {
       this.message.push(message);
       this.socket.emit('broadcast-message', message);
     }
-
-    
 
     setPeerEventListeners = (stream) => {
       this.myPeer.on("call", (call) => {
@@ -290,21 +290,21 @@ class Connection {
       }
     }
 
-  reInitializeStream = (video, audio, type = "userMedia") => {
-    const media =
-      type === "userMedia"
-        ? getMediaStream(video, audio)
-        : navigator.mediaDevices.getDisplayMedia(video, audio);
-    return new Promise((resolve) => {
-      media.then((stream) => {
-        if (type === "screenShare") {
-        }
-        this.createVideo({ userId: this.myId, stream });
-        replaceStream(stream);
-        resolve(true);
+    reInitializeStream = (video, audio, type = "userMedia") => {
+      const media =
+        type === "userMedia"
+          ? getMediaStream(video, audio)
+          : navigator.mediaDevices.getDisplayMedia(video, audio);
+      return new Promise((resolve) => {
+        media.then((stream) => {
+          if (type === "screenShare") {
+          }
+          this.createVideo({ userId: this.myId, stream });
+          replaceStream(stream);
+          resolve(true);
+        });
       });
-    });
-  };
+    }
 }
 
 const getScreenStream = (video = true, audio = true) => {
@@ -322,24 +322,27 @@ const getMediaStream = (video = true, audio = true) => {
 };
 
 const replaceStream = (mediaStream) => {
-    console.log(peers)
-    Object.values(peers).map(peer => {
+  console.log(peers);
+  Object.values(peers).map((peer) => {
+    peer.peerConnection?.getSenders().map((sender) => {
+      if (sender.track.kind === "audio") {
+        if (mediaStream.getAudioTracks().length > 0) {
+          sender.replaceTrack(mediaStream.getAudioTracks()[0]);
+        }
+      }
+      if (sender.track.kind === "video") {
+        if (mediaStream.getVideoTracks().length > 0) {
+          sender.replaceTrack(mediaStream.getVideoTracks()[0]);
+        }
+      }
+    });
+  });
+};
 
-        peer.peerConnection?.getSenders().map(sender => {
-            if(sender.track.kind === "audio"){
-                if(mediaStream.getAudioTracks().length > 0){
-                    sender.replaceTrack(mediaStream.getAudioTracks()[0]);
-                }
-            }
-            if(sender.track.kind === "video"){
-                if(mediaStream.getVideoTracks().length > 0){
-                    sender.replaceTrack(mediaStream.getVideoTracks()[0]);
-                }
-            }
-        })
-    })
-}
-
-export function createSocketConnectionInstance(settings, updateUI){
-  return new Connection(settings, updateUI)
+export function createSocketConnectionInstance(
+  settings,
+  updateUI,
+  updateMessage
+) {
+  return new Connection(settings, updateUI, updateMessage);
 }

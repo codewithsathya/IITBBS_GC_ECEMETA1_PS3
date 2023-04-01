@@ -1,9 +1,22 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./ChatBox.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisV, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 
-export default function ChatBox() {
+export default function ChatBox(props) {
+  const [message, setMessage] = useState("");
+  const profile = JSON.parse(localStorage.getItem("profile"));
+
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="chat-box">
       <div className="chat-window">
@@ -13,57 +26,71 @@ export default function ChatBox() {
           </div>
           <div className="user-info">
             <h3 className="user-name">John Doe</h3>
-            <span className="user-status">Online</span>
+            <span className="user-status">
+              The current time is: {time.toLocaleTimeString()}
+            </span>
           </div>
           <div className="menu-icon">
             <FontAwesomeIcon icon={faEllipsisV} />
           </div>
         </div>
         <div className="chat-body">
-          <div className="chat-message">
-            <div className="message-sender">
-              <div className="sender-profile-image">
-                <img src="https://via.placeholder.com/50" alt="Profile Image" />
-              </div>
-              <div className="sender-message">
-                <p>Hi, how are you doing?</p>
-              </div>
-            </div>
-            <div className="message-time">
-              <span>3:35 PM</span>
-            </div>
-          </div>
-          <div className="chat-message">
-            <div className="message-recipient">
-              <div className="recipient-message">
-                <p>
-                  Hey, I'm good. How about you? adsfjhsadjfnsdkj vksjbvninv sv
-                  jvnsfvnsdkj vskjnisdjfiihds
-                </p>
-              </div>
-            </div>
-            <div className="message-time">
-              <span>3:40 PM</span>
-            </div>
-          </div>
-          <div className="chat-message">
-            <div className="message-sender">
-              <div className="sender-profile-image">
-                <img src="https://via.placeholder.com/50" alt="Profile Image" />
-              </div>
-              <div className="sender-message">
-                <p>I'm doing great, thanks for asking.</p>
-              </div>
-            </div>
-            <div className="message-time">
-              <span>3:42 PM</span>
-            </div>
-          </div>
+          {props.messages.map((message, idx) => {
+            if (message.profile.data.email === profile.data.email) {
+              return (
+                <div className="chat-message" key={idx}>
+                  <div className="recipient-message">
+                    <p>{message.message}</p>
+                  </div>
+                  <div className="message-time">
+                    <span>{message.time}</span>
+                  </div>
+                </div>
+              );
+            } else {
+              return (
+                <div className="chat-message" key={idx}>
+                  <div className="message-sender">
+                    <div className="sender-profile-image">
+                      <img src="https://via.placeholder.com/50" alt="Profile" />
+                    </div>
+                    <div className="sender-message">
+                      <p>{message.message}</p>
+                    </div>
+                  </div>
+                  <div className="message-time">
+                    <span>{message.time}</span>
+                  </div>
+                </div>
+              );
+            }
+          })}
         </div>
         <div className="chat-footer">
           <div className="input-box">
-            <input type="text" placeholder="Type your message..." />
-            <button className="send-icon">
+            <input
+              type="text"
+              placeholder="Type your message..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+            <button
+              className="send-icon"
+              onClick={() => {
+                if (props.connectionInstance) {
+                  props.connectionInstance.socket.emit("message", {
+                    profile,
+                    message,
+                    time: time.toLocaleTimeString(),
+                  });
+                  setMessage("");
+                  props.setMessages((prev) => [
+                    ...prev,
+                    { profile, message, time: time.toLocaleTimeString() },
+                  ]);
+                }
+              }}
+            >
               <FontAwesomeIcon icon={faPaperPlane} />
             </button>
           </div>
