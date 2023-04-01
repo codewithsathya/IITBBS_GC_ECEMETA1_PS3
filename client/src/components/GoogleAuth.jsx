@@ -9,10 +9,8 @@ const GoogleAuth = () => {
   const dispatch = useDispatch();
 
   const googleSuccess = async (res) => {
-    console.log(res);
     const token = res?.credential;
     const result = await jwt_decode(token);
-    console.log(result);
 
     try {
       const formData = {

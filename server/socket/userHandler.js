@@ -22,6 +22,10 @@ module.exports = (io) => {
         socket.on('user-video-off', (value) => {
             socket.to(roomId).emit('user-video-off', value);
         });
+
+        socket.on('screenshare-started', () => {
+            socket.to(roomId).emit('new-screenshare-started', { userData })
+        })
     }
     return {
         joinRoom,
