@@ -67,35 +67,38 @@ class Connection {
     // this.socket.on('')
   };
 
-  initializePeerEvents = () => {
-    this.myPeer.on("open", async (id) => {
-      const { userDetails } = this.settings;
-      this.myId = id;
-      const roomId = window.location.pathname.split("/")[2];
-      const userData = {
-        userId: id,
-        roomId,
-        ...userDetails,
-      };
-      console.log("Joined the room: ", roomId, userData);
-      this.socket.emit("join-room", userData);
-      await this.setNavigator();
-    });
-    this.myPeer.on("error", (err) => {
-      console.log("Peer connections error: ", err);
-    });
-  };
+    initializePeerEvents = () => {
 
-  setNavigator = async () => {
-    const stream = await this.getMediaStream();
-    if (stream) {
-      this.streaming = true;
-      this.settings.updateInstance("streaming", true);
-      this.createVideo({ userId: this.myId, stream });
-      this.setPeerEventListeners(stream);
-      this.newUserConnection(stream);
+
+        this.myPeer.on('open', async (id) => {
+            const { userDetails } = this.settings;
+            this.myId = id
+            const roomId = window.location.pathname.split('/')[2];
+            const userData = {
+                userId: id, roomId, ...userDetails
+            }
+            console.log("Joined the room: ", roomId, userData)
+            this.socket.emit('join-room', userData)
+            await this.setNavigator();
+        })
+        this.myPeer.on('error', (err) => {
+            console.log('Peer connections error: ', err)
+        })
     }
-  };
+
+    setNavigator = async () => {
+        const stream = (this.settings.cameraStatus || this.settings.micStatus) ? await this.getMediaStream(this.settings.cameraStatus, this.settings.micStatus) : null;
+        if(stream){
+            this.streaming = true;
+            this.settings.updateInstance('streaming', true)
+            this.createVideo({ userId: this.myId, stream });
+            this.setPeerEventListeners(stream);
+            this.newUserConnection(stream);
+        }else{
+            this.setPeerEventListeners(null);
+            this.newUserConnection(stream);
+        }
+    }
 
   enableScreenShare = async () => {
     const screenStream = await this.getScreenStream();
@@ -197,9 +200,13 @@ class Connection {
     this.myPeer.destroy();
   };
 
-  toggleCamera = (status) => {
-    this.reInitializeStream(status.video, status.audio);
-  };
+    toggleCamera = (status) => {
+        this.reInitializeStream(status.video, status.audio)
+    }
+
+    toggleMic = (status) => {
+        this.reInitializeStream(status.video, status.audio)
+    }
 
   reInitializeStream = (video, audio, type = "userMedia") => {
     const media =
@@ -219,23 +226,24 @@ class Connection {
 }
 
 const replaceStream = (mediaStream) => {
-  console.log(peers);
-  Object.values(peers).map((peer) => {
-    peer.peerConnection?.getSenders().map((sender) => {
-      if (sender.track.kind === "audio") {
-        if (mediaStream.getAudioTracks().length > 0) {
-          sender.replaceTrack(mediaStream.getAudioTracks()[0]);
-        }
-      }
-      if (sender.track.kind === "video") {
-        if (mediaStream.getVideoTracks().length > 0) {
-          sender.replaceTrack(mediaStream.getVideoTracks()[0]);
-        }
-      }
-    });
-  });
-};
+    console.log(peers)
+    Object.values(peers).map(peer => {
 
-export function createSocketConnectionInstance(settings = {}, updateUI) {
-  return (socketInstance = new Connection(settings, updateUI));
+        peer.peerConnection?.getSenders().map(sender => {
+            if(sender.track.kind === "audio"){
+                if(mediaStream.getAudioTracks().length > 0){
+                    sender.replaceTrack(mediaStream.getAudioTracks()[0]);
+                }
+            }
+            if(sender.track.kind === "video"){
+                if(mediaStream.getVideoTracks().length > 0){
+                    sender.replaceTrack(mediaStream.getVideoTracks()[0]);
+                }
+            }
+        })
+    })
+}
+
+export function createSocketConnectionInstance(settings, updateUI){
+  return new Connection(settings, updateUI)
 }
