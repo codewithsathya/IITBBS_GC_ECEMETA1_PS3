@@ -96,7 +96,7 @@ class Connection {
             this.newUserConnection(stream);
         }else{
             this.setPeerEventListeners(null);
-            this.newUserConnection(stream)
+            this.newUserConnection(stream);
         }
     }
 
@@ -242,4 +242,8 @@ const replaceStream = (mediaStream) => {
             }
         })
     })
+}
+
+export function createSocketConnectionInstance(settings, updateUI){
+  return new Connection(settings, updateUI)
 }
