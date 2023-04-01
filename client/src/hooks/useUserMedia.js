@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 export default function useUserMedia(requestedMedia){
+    const videoRef = useRef();
     const [mediaStream, setMediaStream] = useState(null)
     useEffect(() => {
         async function enableStream(){
@@ -22,7 +23,10 @@ export default function useUserMedia(requestedMedia){
             }
         }
     }, [mediaStream, requestedMedia])
-    return mediaStream;
+    if(mediaStream && videoRef.current && !videoRef.current.srcObject){
+        videoRef.current.srcObject = mediaStream;
+    }
+    return [mediaStream, videoRef];
 
     // const ref = useRef(null);
     // const [myVideo, setMyVideo] = useState({ ref })

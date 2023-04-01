@@ -7,7 +7,8 @@ import { Button } from "@material-tailwind/react";
 import Home from "./ui/Home";
 import Lobby from "./ui/Lobby";
 import VideoGrid from "./ui/VideoGrid";
-import Meeting from "./ui/Meeting";
+import TempMeeting from "./ui/Temp";
+import Meeting from "./ui/Temp2";
 
 function App() {
   return (
@@ -21,12 +22,12 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/lobby" element={<Lobby />} />
         <Route path="/grid" element={<VideoGrid />} />
-        <Route path="/test" element={<Test />} />
+        <Route path="/test" element={<TempMeeting />} />
         <Route path="/" element={<Home />}/>
         <Route path="/lobby" element={<Lobby />}/>
         <Route path="/test" element={<Test />}/>
         <Route path="/call" element={<Call />}/>
-        <Route path="/meeting" element={<Meeting />}/>
+        <Route path="/meeting/:id" element={<Meeting />}/>
       </Routes>
     </BrowserRouter>
   );

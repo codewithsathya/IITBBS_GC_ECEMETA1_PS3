@@ -25,6 +25,7 @@ const redisClient = createClient({
   }
 })
 
+
 // Parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
