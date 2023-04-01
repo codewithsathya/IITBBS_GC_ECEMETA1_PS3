@@ -12,6 +12,6 @@ export default function VideoTile({ stream }){
         }
     }, [stream])
     return (
-        <video ref={ref}></video>
+        <video ref={ref} muted></video>
     )
 }

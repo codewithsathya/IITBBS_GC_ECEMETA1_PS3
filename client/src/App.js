@@ -8,7 +8,7 @@ import Home from "./ui/Home";
 import Lobby from "./ui/Lobby";
 import VideoGrid from "./ui/VideoGrid";
 import TempMeeting from "./ui/Temp";
-import Meeting from "./ui/Temp2";
+import Meeting from "./ui/Meeting";
 
 function App() {
   return (
@@ -23,7 +23,6 @@ function App() {
         <Route path="/lobby" element={<Lobby />} />
         <Route path="/grid" element={<VideoGrid />} />
         <Route path="/test" element={<TempMeeting />} />
-        <Route path="/" element={<Home />}/>
         <Route path="/lobby" element={<Lobby />}/>
         <Route path="/test" element={<Test />}/>
         <Route path="/call" element={<Call />}/>

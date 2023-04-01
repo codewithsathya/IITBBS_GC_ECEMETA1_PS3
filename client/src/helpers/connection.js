@@ -13,7 +13,8 @@ let socketInstance = null;
 let peers = {}
 
 const initializePeerConnection = () => {
-    return new Peer(undefined, peerOptions)
+    // return new Peer(undefined, peerOptions)
+    return new Peer()
 }
 
 const initializeSocketConnection = () => {
@@ -27,23 +28,26 @@ class Connection{
     streaming = false;
     myPeer;
     socket;
-    myID = '';
+    updateUI;
+    myId = '';
 
-    constructor(settings) {
+    constructor(settings, updateUI) {
         this.settings = settings;
+        this.updateUI = updateUI
         this.myPeer = initializePeerConnection();
         this.socket = initializeSocketConnection();
         this.initializeSocketEvents();
-        this.initializePeersEvents();
+        this.initializePeerEvents();
     }
 
-    initializeSocketEvents(){
+    initializeSocketEvents = () => {
         this.socket.on('connect', () => {
             console.log("Socket connected")
         })
 
         this.socket.on('user-disconnected', (userId) => {
             console.log('User disconnected: ', userId)
+            this.removeVideo(userId)
         })
 
         this.socket.on('disconnect', () => {
@@ -62,7 +66,7 @@ class Connection{
         // this.socket.on('')
     }
 
-    initializePeerEvents(){
+    initializePeerEvents = () => {
         this.myPeer.on('open', async (id) => {
             const { userDetails } = this.settings;
             this.myId = id
@@ -72,6 +76,10 @@ class Connection{
             }
             console.log("Joined the room: ", roomId, userData)
             this.socket.emit('join-room', userData)
+            await this.setNavigator();
+        })
+        this.myPeer.on('error', (err) => {
+            console.log('Peer connections error: ', err)
         })
     }
 
@@ -80,7 +88,7 @@ class Connection{
         if(stream){
             this.streaming = true;
             this.settings.updateInstance('streaming', true)
-            this.createVideo({ id: this.myId, stream });
+            this.createVideo({ userId: this.myId, stream });
             this.setPeerEventListeners(stream);
             this.newUserConnection(stream);
         }
@@ -92,24 +100,30 @@ class Connection{
     }
 
     setPeerEventListeners = (stream) => {
-        this.myPeer.on('call', (call) => {
+        this.myPeer.on("call", (call) => {
             call.answer(stream)
             call.on('stream', (userVideoStream) => {
-                
+                this.createVideo({userId: call.metadata.id, stream: userVideoStream})
             })
             call.on('close', () => {
                 console.log('Closing peer: ', call.metadata.id)
+                this.removeVideo(call.metadata.id)
             })
             call.on('error', (err) => {
                 console.log('Peer error: ', err);
-                // removeVideo(call.metadata.id)
+                this.removeVideo(call.metadata.id)
             })
             peers[call.metadata.id] = call;
         })
     }
 
+    removeVideo = (userId) => {
+        delete this.videoContainer[userId]
+        this.updateUI()
+    }
+
     newUserConnection = (stream) => {
-        this.socket.on('new-user-connect', (userData) => {
+        this.socket.on('new-user-connected', (userData) => {
             console.log("New user connected: ", userData)
             this.connectToNewUser(userData, stream)
         })
@@ -117,9 +131,12 @@ class Connection{
 
     connectToNewUser(userData, stream){
         const { userId } = userData;
+        console.log("Calling: ", userId)
         const call = this.myPeer.call(userId, stream, {metadata: {id: this.myId}})
+        // old one calling new one and waiting
         call.on('stream', (userVideoStream) => {
-            this.createVideo({id: userId, stream: userVideoStream, userData})
+            console.log("Getting stream")
+            this.createVideo({userId, stream: userVideoStream, userData}, )
         })
         call.on('close', () => {
             console.log('Closing new user', userId);
@@ -131,8 +148,25 @@ class Connection{
         })
         peers[userId] = call;
     }
+
+    createVideo(videoData){
+        this.videoContainer[videoData.userId] = {
+            ...videoData
+        }
+        this.updateUI()
+    }
+
+    destroyConnection = () => {
+        const myMediaTracks = this.videoContainer[this.myId]?.stream.getTracks();
+        myMediaTracks?.forEach((track) => {
+            track.stop();
+        })
+        socketInstance?.socket.disconnect();
+        this.myPeer.destroy();
+
+    }
 }
 
-export function createSocketConnectionInstance(settings={}) {
-    return socketInstance = new Connection(settings);
+export function createSocketConnectionInstance(settings={}, updateUI) {
+    return socketInstance = new Connection(settings, updateUI);
 }

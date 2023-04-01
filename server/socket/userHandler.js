@@ -8,17 +8,6 @@ module.exports = (io) => {
         const socket = this;
         socket.join(roomId)
 
-        if(!allMeetingsDetails[roomId]){
-            allMeetingsDetails[roomId] = {}
-        }
-        let newUserData = {
-            peerId: userId,
-            microphoneEnabled,
-            cameraEnabled,
-            isScreenSharing: false
-        }
-        allMeetingsDetails[roomId][userId] = newUserData;
-
         socket.to(roomId).emit("new-user-connected", userData)
         socket.on('disconnect', () => {
             socket.to(roomId).emit('user-disconnected', userId)
@@ -34,13 +23,7 @@ module.exports = (io) => {
             socket.to(roomId).emit('user-video-off', value);
         });
     }
-
-    const readOrder = function(orderId, callback){
-
-    }
-
     return {
         joinRoom,
-        readOrder
     }
 }
