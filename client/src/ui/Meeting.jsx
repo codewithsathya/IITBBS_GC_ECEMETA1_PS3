@@ -2,16 +2,23 @@ import { useEffect, useRef, useState } from "react";
 import { createSocketConnectionInstance } from "../helpers/connection";
 import VideoTile from "../components/VideoTile";
 
-export default function Meeting(props) {
-  let connectionInstance = useRef(null);
-  let [switcher, setSwitcher] = useState(false);
+export default function Meeting(props){
+    let connectionInstance = useRef(null)
 
-  const [userDetails, setUserDetails] = useState({
-    cameraEnabled: true,
-    micEnabled: true,
-  });
-  const [idStreamMap, setIdStreamMap] = useState(null);
-  console.log(userDetails);
+    let [switcher, setSwitcher] = useState(false)
+
+    const [cameraStatus, setCameraStatus] = useState(false);
+    const [micStatus, setMicStatus] = useState(true);
+
+    const [userDetails, setUserDetails] = useState({cameraEnabled: true, micEnabled: true});
+    const [idStreamMap, setIdStreamMap] = useState(null)
+    console.log(userDetails)
+
+    const handleCamera = () => {
+        const { toggleCamera } = connectionInstance.current
+        toggleCamera({video: !cameraStatus, audio: micStatus})
+        setCameraStatus(!cameraStatus)
+    }
 
   useEffect(() => {
     return () => {
@@ -45,15 +52,13 @@ export default function Meeting(props) {
     console.log(connectionInstance);
   };
 
-  return (
-    <div>
-      {idStreamMap &&
-        Object.keys(idStreamMap).map((id) => (
-          <VideoTile stream={idStreamMap[id]} key={id} />
-        ))}
-      <button onClick={handleClick} switcher={`${switcher}`}>
-        click
-      </button>
-    </div>
-  );
+    const toggleScreenShare = () => {
+
+    }
+    return (
+        <div>
+            {idStreamMap && Object.keys(idStreamMap).map(id => <VideoTile stream={idStreamMap[id]} key={id} muted={connectionInstance.current.myId === id} /> )}
+            <button onClick={handleCamera} switcher={`${switcher}`}>Screenshare</button>
+        </div>
+    )
 }

@@ -17,7 +17,7 @@ module.exports = (io) => {
         })
 
         socket.on('display-media', (value) => {
-            socket.to(roomId).emit('display-media', {userId, value });
+            socket.to(roomId).emit('display-media', { userId, value });
         });
         socket.on('user-video-off', (value) => {
             socket.to(roomId).emit('user-video-off', value);

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react"
 
-export default function VideoTile({ stream }){
+export default function VideoTile({ stream, muted }){
     const ref = useRef()
     useEffect(() => {
         if (stream) {
@@ -12,6 +12,6 @@ export default function VideoTile({ stream }){
         }
     }, [stream])
     return (
-        <video ref={ref} muted></video>
+        <video ref={ref} muted={muted}></video>
     )
 }

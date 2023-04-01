@@ -26,6 +26,7 @@ class Connection{
     message = [];
     settings;
     streaming = false;
+    screenStreaming = false;
     myPeer;
     socket;
     updateUI;
@@ -94,9 +95,21 @@ class Connection{
         }
     }
 
+    enableScreenShare = async () => {
+        const screenStream = await this.getScreenStream()
+        if(screenStream){
+            this.screenStreaming = true;
+            this.createVideo({userId: this.myId, stream: screenStream, isScreenStream: true})
+        }
+    }
+
     getMediaStream = (video=true, audio=true) => {
         const myNavigator = navigator.mediaDevices.getUserMedia || navigator.mediaDevices.webkitGetUserMedia || navigator.mediaDevices.mozGetUserMedia || navigator.mediaDevices.msGetUserMedia;
         return myNavigator({video, audio})
+    }
+
+    getScreenStream = (video=true, audio=true) => {
+        return navigator.mediaDevices.getDisplayMedia({audio: true, video: true})
     }
 
     setPeerEventListeners = (stream) => {
@@ -150,9 +163,16 @@ class Connection{
     }
 
     createVideo(videoData){
-        this.videoContainer[videoData.userId] = {
-            ...videoData
-        }
+        // if(videoData.isScreenStream){
+        //     if(!this.videoContainer[videoData.userId]){
+        //         this.videoContainer[videoData.userId] = { userId: videoData.userId }
+        //     }
+        //     this.videoContainer[videoData.userId].screenStream = videoData.stream
+        // }else{
+            this.videoContainer[videoData.userId] = {
+                ...videoData
+            }
+        // }
         this.updateUI()
     }
 
@@ -165,6 +185,42 @@ class Connection{
         this.myPeer.destroy();
 
     }
+
+    toggleCamera = (status) => {
+        this.reInitializeStream(status.video, status.audio)
+    }
+
+    reInitializeStream = (video, audio, type='userMedia') => {
+        const media = type === 'userMedia' ? this.getMediaStream(video, audio) : navigator.mediaDevices.getDisplayMedia(video, audio)
+        return new Promise((resolve) => {
+            media.then((stream) => {
+                if(type === 'screenShare'){
+
+                }
+                this.createVideo({userId: this.myId, stream})
+                replaceStream(stream)
+                resolve(true)
+            })
+        })
+    }
+}
+
+const replaceStream = (mediaStream) => {
+    console.log(peers)
+    Object.values(peers).map(peer => {
+        peer.peerConnection?.getSenders().map(sender => {
+            if(sender.track.kind === "audio"){
+                if(mediaStream.getAudioTracks().length > 0){
+                    sender.replaceTrack(mediaStream.getAudioTracks()[0]);
+                }
+            }
+            if(sender.track.kind === "video"){
+                if(mediaStream.getVideoTracks().length > 0){
+                    sender.replaceTrack(mediaStream.getVideoTracks()[0]);
+                }
+            }
+        })
+    })
 }
 
 export function createSocketConnectionInstance(settings={}, updateUI) {
