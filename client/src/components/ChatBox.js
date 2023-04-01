@@ -36,14 +36,14 @@ export default function ChatBox(props) {
         </div>
         <div className="chat-body">
           {props.messages.map((message, idx) => {
-            if (message.profile.data === profile.data) {
+            if (message.profile.data.email === profile.data.email) {
               return (
                 <div className="chat-message" key={idx}>
                   <div className="recipient-message">
                     <p>{message.message}</p>
                   </div>
                   <div className="message-time">
-                    <span>3:40 PM</span>
+                    <span>{message.time}</span>
                   </div>
                 </div>
               );
@@ -59,7 +59,7 @@ export default function ChatBox(props) {
                     </div>
                   </div>
                   <div className="message-time">
-                    <span>3:35 PM</span>
+                    <span>{message.time}</span>
                   </div>
                 </div>
               );
@@ -81,8 +81,13 @@ export default function ChatBox(props) {
                   props.connectionInstance.socket.emit("message", {
                     profile,
                     message,
+                    time: time.toLocaleTimeString(),
                   });
                   setMessage("");
+                  props.setMessages((prev) => [
+                    ...prev,
+                    { profile, message, time: time.toLocaleTimeString() },
+                  ]);
                 }
               }}
             >
