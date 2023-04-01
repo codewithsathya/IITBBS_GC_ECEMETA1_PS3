@@ -20,6 +20,11 @@
   padding: 10px;
   background-color: #1e1e1e;
   margin: 0;
+  width: 100vw;
+}
+
+.grid-container.closed {
+  width: 60vw;
 }
 
 .pinned {
@@ -42,6 +47,10 @@
 
 .other-videos {
   overflow-y: scroll;
+}
+
+.other-videos::-webkit-scrollbar {
+  display: none;
 }
 
 .other-videos > video {

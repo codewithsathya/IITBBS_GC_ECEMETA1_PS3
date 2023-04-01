@@ -8,7 +8,6 @@ import { AiOutlineUserAdd, AiFillSetting } from "react-icons/ai";
 import "./VideoGrid.css";
 import VideoTile from "../components/VideoTile";
 import useUserMedia from "../hooks/useUserMedia";
-import "./VideoGrid.css";
 import ChatBox from "../components/ChatBox";
 
 const connectConfig = config[config.env];

@@ -2,23 +2,32 @@ import { useEffect, useRef, useState } from "react";
 import { createSocketConnectionInstance } from "../helpers/connection";
 import VideoTile from "../components/VideoTile";
 
-export default function Meeting(props){
-    let connectionInstance = useRef(null)
+import { BsMicFill, BsImage } from "react-icons/bs";
+import { FaVideo, FaVideoSlash } from "react-icons/fa";
+import { AiOutlineUserAdd, AiFillSetting } from "react-icons/ai";
+import ChatBox from "../components/ChatBox";
+import "./VideoGrid.css";
 
-    let [switcher, setSwitcher] = useState(false)
+export default function Meeting(props) {
+  let connectionInstance = useRef(null);
 
-    const [cameraStatus, setCameraStatus] = useState(false);
-    const [micStatus, setMicStatus] = useState(true);
+  let [switcher, setSwitcher] = useState(false);
 
-    const [userDetails, setUserDetails] = useState({cameraEnabled: true, micEnabled: true});
-    const [idStreamMap, setIdStreamMap] = useState(null)
-    console.log(userDetails)
+  const [cameraStatus, setCameraStatus] = useState(false);
+  const [micStatus, setMicStatus] = useState(true);
 
-    const handleCamera = () => {
-        const { toggleCamera } = connectionInstance.current
-        toggleCamera({video: !cameraStatus, audio: micStatus})
-        setCameraStatus(!cameraStatus)
-    }
+  const [userDetails, setUserDetails] = useState({
+    cameraEnabled: true,
+    micEnabled: true,
+  });
+  const [idStreamMap, setIdStreamMap] = useState(null);
+  console.log(userDetails);
+
+  const handleCamera = () => {
+    const { toggleCamera } = connectionInstance.current;
+    toggleCamera({ video: !cameraStatus, audio: micStatus });
+    setCameraStatus(!cameraStatus);
+  };
 
   useEffect(() => {
     return () => {
@@ -52,13 +61,79 @@ export default function Meeting(props){
     console.log(connectionInstance);
   };
 
-    const toggleScreenShare = () => {
+  const toggleScreenShare = () => {};
 
-    }
-    return (
-        <div>
-            {idStreamMap && Object.keys(idStreamMap).map(id => <VideoTile stream={idStreamMap[id]} key={id} muted={connectionInstance.current.myId === id} /> )}
-            <button onClick={handleCamera} switcher={`${switcher}`}>Screenshare</button>
+  const [chatOpen, setChatOpen] = useState(false);
+  const cameraTurnedOn = true;
+  return (
+    <div className="wrapper">
+      <div className={chatOpen ? "chat" : "closed"}>
+        {chatOpen && <ChatBox />}
+      </div>
+      <div>
+        <div className={!chatOpen ? "grid-container" : "grid-container closed"}>
+          <div className="pinned">
+            {connectionInstance &&
+              connectionInstance.current &&
+              connectionInstance.current.myId &&
+              idStreamMap &&
+              idStreamMap[connectionInstance.current.myId] && (
+                <VideoTile
+                  stream={idStreamMap[connectionInstance.current.myId]}
+                  className="pinned-video"
+                  muted={true}
+                />
+              )}
+          </div>
+          <div className="unpinned">
+            <div className="my-video">
+              {connectionInstance &&
+                connectionInstance.current &&
+                connectionInstance.current.myId &&
+                idStreamMap &&
+                idStreamMap[connectionInstance.current.myId] && (
+                  <VideoTile
+                    stream={idStreamMap[connectionInstance.current.myId]}
+                    muted={true}
+                  />
+                )}
+            </div>
+            <div className="other-videos">
+              {idStreamMap &&
+                Object.keys(idStreamMap).map((id) => {
+                  if (connectionInstance.current.myId !== id)
+                    return <VideoTile stream={idStreamMap[id]} key={id} />;
+                })}
+            </div>
+          </div>
         </div>
-    )
+        <div
+          className={
+            chatOpen
+              ? "flex items-center justify-center py-1 bg-gray-300 rounded-lg object-fill mx-1 closed"
+              : "flex items-center justify-center py-1 bg-gray-300 rounded-lg object-fill mx-1"
+          }
+        >
+          <div
+            className="p-4 border-opacity-50"
+            onClick={() => setChatOpen(true)}
+          >
+            <BsMicFill />
+          </div>
+          <div className="p-4">
+            {!cameraTurnedOn ? <FaVideo /> : <FaVideoSlash />}
+          </div>
+          <div className="p-4">
+            <AiOutlineUserAdd />
+          </div>
+          <div className="p-4">
+            <BsImage />
+          </div>
+          <div className="p-4">
+            <AiFillSetting />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
