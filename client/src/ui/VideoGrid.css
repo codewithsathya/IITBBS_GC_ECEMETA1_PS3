@@ -1,4 +1,127 @@
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #1e1e1e;
+  overflow: hidden;
+  border: 5px solid #1e1e1e;
+}
+
+.chat {
+  width: 40vw;
+}
+
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: 0.85fr 0.15fr;
+  grid-gap: 10px;
+  padding: 10px;
+  background-color: #1e1e1e;
+  margin: 0;
+}
+
+.pinned {
+  height: 85vh;
+}
+
+.pinned > video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.unpinned {
+  height: 85vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.other-videos {
+  overflow-y: scroll;
+}
+
+.other-videos > video {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.my-video > video {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 50px;
+}
+
+video:hover {
+  filter: brightness(0.5);
+  transition: 0.2s ease-in-out;
+}
+
+@media (max-width: 480px) {
+  .grid-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #1e1e1e;
+    margin: 0;
+  }
+
+  .chat {
+    width: 100vw;
+  }
+
+  .closed {
+    display: none;
+  }
+
+  .pinned {
+    height: 70vh;
+  }
+
+  .pinned > video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  .unpinned {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 15vh;
+  }
+
+  .my-video {
+    width: min(100px, 100%);
+    margin-right: 40px;
+  }
+
+  .my-video > video {
+    width: min(100px, 100%);
+    min-width: 100px;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-right: 40px;
+  }
+
+  .other-videos {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    overflow-x: scroll;
+    overflow-y: hidden;
+  }
+
+  .other-videos > video {
+    width: 100px;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-right: 10px;
+  }
 }

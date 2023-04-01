@@ -7,27 +7,22 @@ import { FaVideo, FaVideoSlash } from "react-icons/fa";
 import { AiOutlineUserAdd, AiFillSetting } from "react-icons/ai";
 import "./VideoGrid.css";
 import VideoTile from "../components/VideoTile";
-import useMyVideo from "../hooks/useUserMedia";
 import useUserMedia from "../hooks/useUserMedia";
+import "./VideoGrid.css";
 
 const connectConfig = config[config.env];
 const cameraConfig = {
   video: true,
   audio: true,
-}
+};
 
 function addVideoStream(stream, setPeerVideos, call) {
-  setPeerVideos((prevVal) => {return {...prevVal, [call.connectionId]: {stream, call}}});
+  setPeerVideos((prevVal) => {
+    return { ...prevVal, [call.connectionId]: { stream, call } };
+  });
 }
 
-function connectToNewUser(
-  setPeers,
-  peers,
-  myPeer,
-  stream,
-  userId,
-  setPeerVideos
-) {
+function connectToNewUser(myPeer, stream, userId, setPeerVideos) {
   const call = myPeer.call(userId, stream);
   call.on("stream", (userVideoStream) => {
     console.log("connect to new user call stream");
@@ -37,17 +32,16 @@ function connectToNewUser(
   call.on("close", () => {
     console.log("remove video");
     setPeerVideos((prevVal) => {
-      let filteredKeys = Object.keys(prevVal).filter((value) => value !== call.connectionId)
-      let result = {}
-      for(let key of filteredKeys){
-        result[key] = prevVal[key]
+      let filteredKeys = Object.keys(prevVal).filter(
+        (value) => value !== call.connectionId
+      );
+      let result = {};
+      for (let key of filteredKeys) {
+        result[key] = prevVal[key];
       }
-      return result
+      return result;
     });
   });
-  setPeers({ ...peers, [userId]: call });
-  // peers = {...peers, [userId]: call}
-  console.log(peers)
 }
 
 export default function Meeting() {
@@ -57,13 +51,13 @@ export default function Meeting() {
   const mediaStream = useUserMedia({
     video: true,
     audio: true,
-  })
-  if(mediaStream && videoRef.current && !videoRef.current.srcObject){
-    videoRef.current.srcObject = mediaStream
+  });
+  if (mediaStream && videoRef.current && !videoRef.current.srcObject) {
+    videoRef.current.srcObject = mediaStream;
   }
 
-  function handleCanPlay(){
-    videoRef.current.play()
+  function handleCanPlay() {
+    videoRef.current.play();
   }
 
   const [peerVideos, setPeerVideos] = useState({});
@@ -77,31 +71,25 @@ export default function Meeting() {
         path: connectConfig.peer_server_path,
       });
 
-      navigator.mediaDevices.getUserMedia(cameraConfig)
-        .then((stream) => {
-          myPeer.on("call", (call) => {
-            call.answer(stream);
-            call.on("stream", (userVideoStream) => {
-              addVideoStream(userVideoStream, setPeerVideos, call);
-            });
-          });
-
-          socket.on("user-connected", (userId) => {
-            console.log(userId)
-            connectToNewUser(
-              myPeer,
-              stream,
-              userId,
-              setPeerVideos,
-            );
+      navigator.mediaDevices.getUserMedia(cameraConfig).then((stream) => {
+        myPeer.on("call", (call) => {
+          call.answer(stream);
+          call.on("stream", (userVideoStream) => {
+            addVideoStream(userVideoStream, setPeerVideos, call);
           });
         });
 
+        socket.on("user-connected", (userId) => {
+          console.log(userId);
+          connectToNewUser(myPeer, stream, userId, setPeerVideos);
+        });
+      });
+
       socket.on("user-disconnected", (userId) => {
         console.log("user-disconnected");
-        console.log(userId)
+        console.log(userId);
         setPeerVideos((prevVal) => {
-          return prevVal
+          return prevVal;
           // let filteredKeys = Object.keys(prevVal).filter((value) => value !== peers[userId].connectionId)
           // let result = {}
           // for(let key of filteredKeys){
@@ -126,16 +114,33 @@ export default function Meeting() {
     console.log("toggle camera");
   };
 
+  const arr = [1, 2, 3, 4, 5];
+
   return (
     <div>
-      <div id="video-grid" className="grid-container">
-        <video ref={videoRef} onCanPlay={handleCanPlay} muted autoPlay playsInline/>
-
-        {Object.keys(peerVideos).map(connectionId => {
-          let stream = peerVideos[connectionId].stream
-          return(
-          <VideoTile stream={stream} key={connectionId}/>
-        )})}
+      <div className="grid-container">
+        <div className="pinned">
+          <video
+            ref={videoRef}
+            onCanPlay={handleCanPlay}
+            muted
+            autoPlay
+            playsInline
+          />
+        </div>
+        <div className="unpinned">
+          {arr.map((value) => {
+            return (
+              videoRef.current && (
+                <VideoTile key={value} stream={videoRef.current.srcObject} />
+              )
+            );
+          })}
+          {/* {Object.keys(peerVideos).map((connectionId) => {
+            let stream = peerVideos[connectionId].stream;
+            return <VideoTile stream={stream} key={connectionId} />;
+          })} */}
+        </div>
       </div>
       <div className="flex items-center justify-center py-2">
         <div className="p-4 border-opacity-50">

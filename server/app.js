@@ -7,23 +7,22 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const app = express();
 const routes = require("./routes");
-const createSocket = require('./socket')
-const http = require('http')
-const https = require('https')
-const fs = require('fs')
-const path = require('path')
-const { createClient } = require("redis")
+const createSocket = require("./socket");
+const http = require("http");
+const https = require("https");
+const fs = require("fs");
+const path = require("path");
+const { createClient } = require("redis");
 
 app.enable("trust proxy");
-
 
 const redisClient = createClient({
   password: process.env.REDIS_PASSWORD,
   socket: {
     host: process.env.REDIS_URL,
-    port: process.env.REDIS_PORT
-  }
-})
+    port: process.env.REDIS_PORT,
+  },
+});
 
 // Parsing
 app.use(express.json());
@@ -34,8 +33,8 @@ app.use(mongoSanitize());
 app.use(xss());
 
 // Cors
-const config = require("../client/src/config.json")
-const connectConfig = config[config.env]
+const config = require("../client/src/config.json");
+const connectConfig = config[config.env];
 app.use(cors({ credentials: true, origin: connectConfig.frontend_url }));
 app.use(cookieParser());
 
@@ -52,12 +51,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-if(config.same_port){
-  const dirname = path.resolve("..")
-  app.use(express.static(path.join(dirname, "/client/build")))
+if (config.same_port) {
+  const dirname = path.resolve("..");
+  app.use(express.static(path.join(dirname, "/client/build")));
   app.get("*", (req, res) => {
-      res.sendFile(path.resolve(dirname, "client", "build", "index.html"))
-  })
+    res.sendFile(path.resolve(dirname, "client", "build", "index.html"));
+  });
 }
 
 let server;
@@ -66,22 +65,21 @@ const port = process.env.PORT || 3000;
 let options;
 const postMongoConnection = () => {
   options = {
-    key: fs.readFileSync('./cert/key.pem'),
-    cert: fs.readFileSync('./cert/certificate.pem')
+    // key: fs.readFileSync("./cert/key.pem"),
+    // cert: fs.readFileSync("./cert/certificate.pem"),
   };
-  if(config.https){
-    server = https.createServer(options, app)
-  }else
-    server = http.createServer(app)
-  server.listen(port, () => console.log(`Listening on port ${port}`))
-  createSocket(server, app, options)
-}
+  if (config.https) {
+    server = https.createServer(options, app);
+  } else server = http.createServer(app);
+  server.listen(port, () => console.log(`Listening on port ${port}`));
+  createSocket(server, app, options);
+};
 
 mongoose.set("strictQuery", true);
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
-    postMongoConnection()
+    postMongoConnection();
   })
   .catch((err) => {
     throw err;
