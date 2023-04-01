@@ -3,7 +3,7 @@ import { createSocketConnectionInstance } from "../helpers/connection";
 import VideoTile from "../components/VideoTile";
 import adapter from 'webrtc-adapter';
 
-import { BsMicFill, BsImage } from "react-icons/bs";
+import { BsMicFill, BsImage, BsMicMuteFill } from "react-icons/bs";
 import { FaVideo, FaVideoSlash } from "react-icons/fa";
 import { AiOutlineUserAdd, AiFillSetting } from "react-icons/ai";
 import ChatBox from "../components/ChatBox";
@@ -69,7 +69,6 @@ export default function Meeting(props) {
   const toggleScreenShare = () => {};
 
   const [chatOpen, setChatOpen] = useState(false);
-  const cameraTurnedOn = true;
   return (
     <div className="wrapper">
       <div className={chatOpen ? "chat" : "closed"}>
@@ -121,12 +120,12 @@ export default function Meeting(props) {
         >
           <div
             className="p-4 border-opacity-50"
-            onClick={() => setChatOpen(true)}
+            onClick={handleMic}
           >
-            <BsMicFill />
+            {!micStatus ? <BsMicFill /> : <BsMicMuteFill />}
           </div>
-          <div className="p-4">
-            {!cameraTurnedOn ? <FaVideo /> : <FaVideoSlash />}
+          <div className="p-4" onClick={handleCamera}>
+            {!cameraStatus ? <FaVideo /> : <FaVideoSlash />}
           </div>
           <div className="p-4">
             <AiOutlineUserAdd />

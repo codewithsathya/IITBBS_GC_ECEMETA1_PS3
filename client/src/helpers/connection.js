@@ -201,11 +201,52 @@ class Connection {
   };
 
     toggleCamera = (status) => {
-        this.reInitializeStream(status.video, status.audio)
+        // this.reInitializeStream(status.video, status.audio)
+        if(!status.video){
+          const stream = this.videoContainer[this.myId].stream
+          const videoTracks = stream.getVideoTracks()
+          videoTracks[0].stop();
+        }else{
+          navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(newStream => {
+            const oldStream = this.videoContainer[this.myId].stream
+            const videoTracks = newStream.getVideoTracks()
+            const oldVideoTracks = oldStream.getVideoTracks()
+            oldStream.removeTrack(oldVideoTracks[0])
+            oldStream.addTrack(videoTracks[0])
+
+            Object.values(peers).forEach(peer => {
+              peer.peerConnection?.getSenders().forEach(sender => {
+                if(sender.track && sender.track.kind === 'video'){
+                  sender.replaceTrack(videoTracks[0])
+                }
+              })
+            })
+          })
+        }
     }
 
     toggleMic = (status) => {
-        this.reInitializeStream(status.video, status.audio)
+        if(!status.audio){
+          const stream = this.videoContainer[this.myId].stream
+          const audioTracks = stream.getAudioTracks()
+          audioTracks[0].stop();
+        }else{
+          navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(newStream => {
+            const oldStream = this.videoContainer[this.myId].stream
+            const audioTracks = newStream.getAudioTracks()
+            const oldAudioTracks = oldStream.getAudioTracks()
+            oldStream.removeTrack(oldAudioTracks[0])
+            oldStream.addTrack(audioTracks[0])
+
+            Object.values(peers).forEach(peer => {
+              peer.peerConnection?.getSenders().forEach(sender => {
+                if(sender.track && sender.track.kind === 'audio'){
+                  sender.replaceTrack(audioTracks[0])
+                }
+              })
+            })
+          })
+        }
     }
 
   reInitializeStream = (video, audio, type = "userMedia") => {
