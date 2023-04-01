@@ -12,8 +12,18 @@ const http = require('http')
 const https = require('https')
 const fs = require('fs')
 const path = require('path')
+const { createClient } = require("redis")
 
 app.enable("trust proxy");
+
+
+const redisClient = createClient({
+  password: process.env.REDIS_PASSWORD,
+  socket: {
+    host: process.env.REDIS_URL,
+    port: process.env.REDIS_PORT
+  }
+})
 
 // Parsing
 app.use(express.json());
@@ -42,11 +52,13 @@ app.use((err, req, res, next) => {
   });
 });
 
-// const dirname = path.resolve("..")
-// app.use(express.static(path.join(dirname, "/client/build")))
-// app.get("*", (req, res) => {
-//     res.sendFile(path.resolve(dirname, "client", "build", "index.html"))
-// })
+if(config.same_port){
+  const dirname = path.resolve("..")
+  app.use(express.static(path.join(dirname, "/client/build")))
+  app.get("*", (req, res) => {
+      res.sendFile(path.resolve(dirname, "client", "build", "index.html"))
+  })
+}
 
 let server;
 const port = process.env.PORT || 3000;
@@ -61,7 +73,7 @@ const postMongoConnection = () => {
     server = https.createServer(options, app)
   }else
     server = http.createServer(app)
-  server.listen(port)
+  server.listen(port, () => console.log(`Listening on port ${port}`))
   createSocket(server, app, options)
 }
 

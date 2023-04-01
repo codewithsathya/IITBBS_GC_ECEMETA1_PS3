@@ -1,6 +1,7 @@
 {
     "https": false,
     "env": "development",
+    "same_port": false,
     "production": {
         "peer_server": "144.24.133.23",
         "peer_server_port": 9000,

@@ -41,6 +41,7 @@ export default function VideoGrid() {
   const [peers, setPeers] = useState({});
   const ref = useRef(null);
   const [myVideo, setMyVideo] = useState({ ref });
+  // const [myVideo, setMyVideo] = useMyVideo()
   const [peerVideos, setPeerVideos] = useState({});
 
   useEffect(() => {
@@ -110,6 +111,7 @@ export default function VideoGrid() {
   useEffect(() => {
     if (myVideo.stream) {
       const video = myVideo.ref.current;
+      if(video == null) return;
       video.srcObject = myVideo.stream;
       video.addEventListener("loadedmetadata", () => {
         video.play();

@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "npm start start-server --prefix server",
-    "build": "npm run build --prefix client"
+    "build": "npm run build --prefix client",
+    "in-same-port": "npm run build && npm start",
+    "setup": "npm install --prefix client && npm install --prefix server",
+    "client:dev": "npm start --prefix client",
+    "server:dev": "npm start"
   },
   "repository": {
     "type": "git",
