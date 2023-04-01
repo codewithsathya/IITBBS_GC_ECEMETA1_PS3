@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createSocketConnectionInstance } from "../helpers/connection";
 import VideoTile from "../components/VideoTile";
-import adapter from 'webrtc-adapter';
 
 import { BsMicFill, BsImage, BsMicMuteFill } from "react-icons/bs";
 import { FaVideo, FaVideoSlash } from "react-icons/fa";
@@ -11,15 +10,16 @@ import "./VideoGrid.css";
 
 export default function Meeting(props) {
   let connectionInstance = useRef(null);
+  const [messages, setMessages] = useState([]);
 
   let [switcher, setSwitcher] = useState(false);
 
-    const [cameraStatus, setCameraStatus] = useState(true);
-    const [micStatus, setMicStatus] = useState(true);
+  const [cameraStatus, setCameraStatus] = useState(true);
+  const [micStatus, setMicStatus] = useState(true);
 
-    const [userDetails, setUserDetails] = useState({});
-    const [idStreamMap, setIdStreamMap] = useState(null)
-    console.log(userDetails)
+  const [userDetails, setUserDetails] = useState({});
+  const [idStreamMap, setIdStreamMap] = useState(null);
+  console.log(userDetails);
 
   const handleCamera = () => {
     const { toggleCamera } = connectionInstance.current;
@@ -27,44 +27,55 @@ export default function Meeting(props) {
     setCameraStatus(!cameraStatus);
   };
 
-    const handleMic = () => {
-      const { toggleMic } = connectionInstance.current;
-      toggleMic({ video: cameraStatus, audio: !micStatus })
-      setMicStatus(!micStatus)
+  const handleMic = () => {
+    const { toggleMic } = connectionInstance.current;
+    toggleMic({ video: cameraStatus, audio: !micStatus });
+    setMicStatus(!micStatus);
+  };
+
+  useEffect(() => {
+    return () => {
+      connectionInstance.current?.destroyConnection();
+    };
+  }, []);
+
+  const updateUI = () => {
+    setSwitcher(!switcher);
+    const videoContainer = { ...connectionInstance.current.videoContainer };
+    const map = {};
+    for (let key of Object.keys(videoContainer)) {
+      map[key] = videoContainer[key].stream;
     }
+    setIdStreamMap(map);
+  };
 
-    useEffect(() => {
-        return () => {
-            connectionInstance.current?.destroyConnection();
-        };
-    }, []);
+  const updateMessage = () => {
+    if (connectionInstance.current.message) {
+      const messagesList = connectionInstance.current.message;
+      console.log("Instance", messagesList);
+      setMessages(messagesList);
+      console.log("messagesList in meeting", messagesList);
+      console.log("messages in meeting", messages);
+    }
+  };
 
-    const updateUI = () => {
-      setSwitcher(!switcher);
-      const videoContainer = { ...connectionInstance.current.videoContainer };
-      const map = {};
-      for (let key of Object.keys(videoContainer)) {
-        map[key] = videoContainer[key].stream;
-      }
-      setIdStreamMap(map);
-    };
+  useEffect(() => {
+    connectionInstance.current = createSocketConnectionInstance(
+      {
+        updateInstance,
+        cameraStatus,
+        micStatus,
+      },
+      updateUI,
+      updateMessage
+    );
+  }, []);
 
-    useEffect(() => {
-      connectionInstance.current = createSocketConnectionInstance(
-        {
-          updateInstance,
-          cameraStatus,
-          micStatus
-        },
-        updateUI
-      );
-    }, []);
+  const updateInstance = (key, value) => {};
 
-    const updateInstance = (key, value) => {};
-
-    const handleClick = () => {
-      console.log(connectionInstance);
-    };
+  const handleClick = () => {
+    console.log(connectionInstance);
+  };
 
   const toggleScreenShare = () => {};
 
@@ -75,7 +86,13 @@ export default function Meeting(props) {
   return (
     <div className="wrapper">
       <div className={chatOpen ? "chat" : "closed"}>
-        {chatOpen && <ChatBox />}
+        {chatOpen && (
+          <ChatBox
+            connectionInstance={connectionInstance.current}
+            messages={messages}
+            setMessages={setMessages}
+          />
+        )}
       </div>
       <div>
         <div className={!chatOpen ? "grid-container" : "grid-container closed"}>
@@ -89,7 +106,7 @@ export default function Meeting(props) {
                   stream={pinnedStream}
                   className="pinned-video"
                   muted={true}
-                  handleClick={()=>{}}
+                  handleClick={() => {}}
                 />
               )}
           </div>
@@ -129,16 +146,13 @@ export default function Meeting(props) {
               : "flex items-center justify-center py-1 bg-gray-300 rounded-lg object-fill mx-1"
           }
         >
-          <div
-            className="p-4 border-opacity-50"
-            onClick={handleMic}
-          >
+          <div className="p-4 border-opacity-50" onClick={handleMic}>
             {!micStatus ? <BsMicFill /> : <BsMicMuteFill />}
           </div>
           <div className="p-4" onClick={handleCamera}>
             {!cameraStatus ? <FaVideo /> : <FaVideoSlash />}
           </div>
-          <div className="p-4">
+          <div className="p-4" onClick={() => setChatOpen((prev) => !prev)}>
             <AiOutlineUserAdd />
           </div>
           <div className="p-4">

@@ -30,11 +30,13 @@ class Connection {
   myPeer;
   socket;
   updateUI;
+  updateMessage;
   myId = "";
 
-  constructor(settings, updateUI) {
+  constructor(settings, updateUI, updateMessage) {
     this.settings = settings;
     this.updateUI = updateUI;
+    this.updateMessage = updateMessage;
     this.myPeer = initializePeerConnection();
     this.socket = initializeSocketConnection();
     this.initializeSocketEvents();
@@ -60,45 +62,50 @@ class Connection {
     });
 
     this.socket.on("new-broadcast-message", (data) => {
+      console.log(data);
       this.message.push(data);
-      // this.settings.updateInstance('message', this.message)
+      this.updateMessage();
     });
-
-    // this.socket.on('')
   };
 
-    initializePeerEvents = () => {
+  initializePeerEvents = () => {
+    this.myPeer.on("open", async (id) => {
+      const { userDetails } = this.settings;
+      this.myId = id;
+      const roomId = window.location.pathname.split("/")[2];
+      const userData = {
+        userId: id,
+        roomId,
+        ...userDetails,
+      };
+      console.log("Joined the room: ", roomId, userData);
+      this.socket.emit("join-room", userData);
+      await this.setNavigator();
+    });
+    this.myPeer.on("error", (err) => {
+      console.log("Peer connections error: ", err);
+    });
+  };
 
-
-        this.myPeer.on('open', async (id) => {
-            const { userDetails } = this.settings;
-            this.myId = id
-            const roomId = window.location.pathname.split('/')[2];
-            const userData = {
-                userId: id, roomId, ...userDetails
-            }
-            console.log("Joined the room: ", roomId, userData)
-            this.socket.emit('join-room', userData)
-            await this.setNavigator();
-        })
-        this.myPeer.on('error', (err) => {
-            console.log('Peer connections error: ', err)
-        })
+  setNavigator = async () => {
+    const stream =
+      this.settings.cameraStatus || this.settings.micStatus
+        ? await this.getMediaStream(
+            this.settings.cameraStatus,
+            this.settings.micStatus
+          )
+        : null;
+    if (stream) {
+      this.streaming = true;
+      this.settings.updateInstance("streaming", true);
+      this.createVideo({ userId: this.myId, stream });
+      this.setPeerEventListeners(stream);
+      this.newUserConnection(stream);
+    } else {
+      this.setPeerEventListeners(null);
+      this.newUserConnection(stream);
     }
-
-    setNavigator = async () => {
-        const stream = (this.settings.cameraStatus || this.settings.micStatus) ? await this.getMediaStream(this.settings.cameraStatus, this.settings.micStatus) : null;
-        if(stream){
-            this.streaming = true;
-            this.settings.updateInstance('streaming', true)
-            this.createVideo({ userId: this.myId, stream });
-            this.setPeerEventListeners(stream);
-            this.newUserConnection(stream);
-        }else{
-            this.setPeerEventListeners(null);
-            this.newUserConnection(stream);
-        }
-    }
+  };
 
   enableScreenShare = async () => {
     const screenStream = await this.getScreenStream();
@@ -200,54 +207,58 @@ class Connection {
     this.myPeer.destroy();
   };
 
-    toggleCamera = (status) => {
-        // this.reInitializeStream(status.video, status.audio)
-        if(!status.video){
-          const stream = this.videoContainer[this.myId].stream
-          const videoTracks = stream.getVideoTracks()
-          videoTracks[0].stop();
-        }else{
-          navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(newStream => {
-            const oldStream = this.videoContainer[this.myId].stream
-            const videoTracks = newStream.getVideoTracks()
-            const oldVideoTracks = oldStream.getVideoTracks()
-            oldStream.removeTrack(oldVideoTracks[0])
-            oldStream.addTrack(videoTracks[0])
+  toggleCamera = (status) => {
+    // this.reInitializeStream(status.video, status.audio)
+    if (!status.video) {
+      const stream = this.videoContainer[this.myId].stream;
+      const videoTracks = stream.getVideoTracks();
+      videoTracks[0].stop();
+    } else {
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: true })
+        .then((newStream) => {
+          const oldStream = this.videoContainer[this.myId].stream;
+          const videoTracks = newStream.getVideoTracks();
+          const oldVideoTracks = oldStream.getVideoTracks();
+          oldStream.removeTrack(oldVideoTracks[0]);
+          oldStream.addTrack(videoTracks[0]);
 
-            Object.values(peers).forEach(peer => {
-              peer.peerConnection?.getSenders().forEach(sender => {
-                if(sender.track && sender.track.kind === 'video'){
-                  sender.replaceTrack(videoTracks[0])
-                }
-              })
-            })
-          })
-        }
+          Object.values(peers).forEach((peer) => {
+            peer.peerConnection?.getSenders().forEach((sender) => {
+              if (sender.track && sender.track.kind === "video") {
+                sender.replaceTrack(videoTracks[0]);
+              }
+            });
+          });
+        });
     }
+  };
 
-    toggleMic = (status) => {
-        if(!status.audio){
-          const stream = this.videoContainer[this.myId].stream
-          const audioTracks = stream.getAudioTracks()
-          audioTracks[0].stop();
-        }else{
-          navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(newStream => {
-            const oldStream = this.videoContainer[this.myId].stream
-            const audioTracks = newStream.getAudioTracks()
-            const oldAudioTracks = oldStream.getAudioTracks()
-            oldStream.removeTrack(oldAudioTracks[0])
-            oldStream.addTrack(audioTracks[0])
+  toggleMic = (status) => {
+    if (!status.audio) {
+      const stream = this.videoContainer[this.myId].stream;
+      const audioTracks = stream.getAudioTracks();
+      audioTracks[0].stop();
+    } else {
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: true })
+        .then((newStream) => {
+          const oldStream = this.videoContainer[this.myId].stream;
+          const audioTracks = newStream.getAudioTracks();
+          const oldAudioTracks = oldStream.getAudioTracks();
+          oldStream.removeTrack(oldAudioTracks[0]);
+          oldStream.addTrack(audioTracks[0]);
 
-            Object.values(peers).forEach(peer => {
-              peer.peerConnection?.getSenders().forEach(sender => {
-                if(sender.track && sender.track.kind === 'audio'){
-                  sender.replaceTrack(audioTracks[0])
-                }
-              })
-            })
-          })
-        }
+          Object.values(peers).forEach((peer) => {
+            peer.peerConnection?.getSenders().forEach((sender) => {
+              if (sender.track && sender.track.kind === "audio") {
+                sender.replaceTrack(audioTracks[0]);
+              }
+            });
+          });
+        });
     }
+  };
 
   reInitializeStream = (video, audio, type = "userMedia") => {
     const media =
@@ -267,24 +278,27 @@ class Connection {
 }
 
 const replaceStream = (mediaStream) => {
-    console.log(peers)
-    Object.values(peers).map(peer => {
+  console.log(peers);
+  Object.values(peers).map((peer) => {
+    peer.peerConnection?.getSenders().map((sender) => {
+      if (sender.track.kind === "audio") {
+        if (mediaStream.getAudioTracks().length > 0) {
+          sender.replaceTrack(mediaStream.getAudioTracks()[0]);
+        }
+      }
+      if (sender.track.kind === "video") {
+        if (mediaStream.getVideoTracks().length > 0) {
+          sender.replaceTrack(mediaStream.getVideoTracks()[0]);
+        }
+      }
+    });
+  });
+};
 
-        peer.peerConnection?.getSenders().map(sender => {
-            if(sender.track.kind === "audio"){
-                if(mediaStream.getAudioTracks().length > 0){
-                    sender.replaceTrack(mediaStream.getAudioTracks()[0]);
-                }
-            }
-            if(sender.track.kind === "video"){
-                if(mediaStream.getVideoTracks().length > 0){
-                    sender.replaceTrack(mediaStream.getVideoTracks()[0]);
-                }
-            }
-        })
-    })
-}
-
-export function createSocketConnectionInstance(settings, updateUI){
-  return new Connection(settings, updateUI)
+export function createSocketConnectionInstance(
+  settings,
+  updateUI,
+  updateMessage
+) {
+  return new Connection(settings, updateUI, updateMessage);
 }
