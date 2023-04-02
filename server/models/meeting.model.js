@@ -8,9 +8,7 @@ const meetingSchema = mongoose.Schema({
   },
   members: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      autopopulate: true,
+      type: String
     },
   ],
   admin: [

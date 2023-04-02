@@ -4,12 +4,12 @@ const { sendMail } = require("../helper/mailer");
 exports.createMeeting = async (req, res, next) => {
   const { title } = req.body;
   try {
-    let code = (Math.random() + 1).toString(36).substring(7);
+    let code = ((Math.random() + 1).toString(36) + (Math.random() + 1).toString(36)).substring(2);;
     let newMeeting = new Meeting({
       title,
       code,
       moderator: req.userId,
-      members: [req.userId],
+      members: [req.userEmail],
     });
 
     newMeeting = await newMeeting.save();
@@ -38,7 +38,7 @@ exports.addMembers = async (req, res, next) => {
     const meetingCode = updatedMeeting.code;
 
     const memberMails = updatedMeeting.members
-      .map((memb) => memb.email)
+      .map((memb) => memb)
       .join(",");
 
     const mailOptions = {
@@ -55,3 +55,4 @@ exports.addMembers = async (req, res, next) => {
     next(err);
   }
 };
+
