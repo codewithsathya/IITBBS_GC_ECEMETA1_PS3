@@ -17,9 +17,12 @@ export default function Meeting(props) {
 
   let [switcher, setSwitcher] = useState(false);
 
-	let userSettings = {}
-	if(localStorage.getItem("user-settings")){
-		userSettings = JSON.parse(localStorage.getItem("user-settings"))
+	let userSettings = { cameraEnabled: true, micEnabled: true }
+	if(localStorage.getItem("cameraTurnedOn")){
+		userSettings.cameraEnabled = localStorage.getItem("cameraTurnedOn") === "true"
+	}
+	if(localStorage.getItem("micTurnedOn")){
+		userSettings.micEnabled = localStorage.getItem("micTurnedOn") === "true"
 	}
   if(!localStorage.getItem("profile")){
     localStorage.setItem("cache-meeting-code", window.location.pathname.split('/')[2])
@@ -204,7 +207,7 @@ export default function Meeting(props) {
           }
         >
           <div className="p-4 border-opacity-50" onClick={handleMic}>
-            {!micStatus ? <BsMicFill /> : <BsMicMuteFill />}
+            {micStatus ? <BsMicFill /> : <BsMicMuteFill />}
           </div>
           <div className="p-4" onClick={handleCamera}>
             {cameraStatus ? <FaVideo /> : <FaVideoSlash />}

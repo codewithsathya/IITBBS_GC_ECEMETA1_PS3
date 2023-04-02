@@ -1,6 +1,6 @@
 import { Button, Input } from "@material-tailwind/react";
 import SelfVideo from "./SelfVideo";
-import { BsMicFill, BsImage } from "react-icons/bs";
+import { BsMicFill, BsImage, BsMicMute } from "react-icons/bs";
 import { FaVideo, FaVideoSlash } from "react-icons/fa";
 import { AiOutlineUserAdd, AiFillSetting } from "react-icons/ai";
 import { useState } from "react";
@@ -10,7 +10,9 @@ import { MdDelete } from "react-icons/md"
 import * as api from "../api"
 
 export default function Lobby() {
-  const [cameraTurnedOn, setCamera] = useState(true);
+  const [cameraTurnedOn, setCamera] = useState(localStorage.getItem("cameraTurnedOn") === "true");
+  const [micTurnedOn, setMic] = useState(localStorage.getItem("micTurnedOn") === "true");
+
   const [showModal, setShowModal] = useState(true);
 
   const [tempEmail, setTempEmail] = useState("");
@@ -23,8 +25,14 @@ export default function Lobby() {
   }
 
   const toggleCamera = () => {
+    localStorage.setItem("cameraTurnedOn", !cameraTurnedOn);
     setCamera(!cameraTurnedOn)
   };
+
+  const toggleMic = () => {
+    localStorage.setItem("micTurnedOn", !micTurnedOn)
+    setMic(!micTurnedOn);
+  }
 
   const handleInvite = async () => {
     await api.inviteMembers({newMembers: { ids: emails }})
@@ -135,8 +143,8 @@ export default function Lobby() {
             </Button>
           </div>
           <div className="flex items-center justify-between py-2">
-            <div className="p-4 border-opacity-50">
-              <BsMicFill />
+            <div className="p-4 border-opacity-50" onClick={toggleMic}>
+              {micTurnedOn ? <BsMicFill /> : <BsMicMute />}
             </div>
             <div className="p-4" onClick={toggleCamera}>
               {cameraTurnedOn ? <FaVideo /> : <FaVideoSlash />}
