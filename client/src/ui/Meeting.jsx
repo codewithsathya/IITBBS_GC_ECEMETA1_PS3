@@ -8,8 +8,10 @@ import { FaVideo, FaVideoSlash } from "react-icons/fa";
 import { AiOutlineUserAdd, AiFillSetting } from "react-icons/ai";
 import ChatBox from "../components/ChatBox";
 import "./VideoGrid.css";
+import { useNavigate } from "react-router-dom";
 
 export default function Meeting(props) {
+  const navigate = useNavigate();
   let connectionInstance = useRef(null);
   const [messages, setMessages] = useState([]);
 
@@ -19,13 +21,18 @@ export default function Meeting(props) {
 	if(localStorage.getItem("user-settings")){
 		userSettings = JSON.parse(localStorage.getItem("user-settings"))
 	}
+  if(!localStorage.getItem("profile")){
+    localStorage.setItem("cache-meeting-code", window.location.pathname.split('/')[2])
+    navigate("/");
+  }
+
 
   const [cameraStatus, setCameraStatus] = useState(userSettings.cameraEnabled);
   const [micStatus, setMicStatus] = useState(userSettings.micEnabled);
   const [screenShareStatus, setScreenShareStatus] = useState(false);
 
   const [userDetails, setUserDetails] = useState({});
-  const [idStreamMap, setIdStreamMap] = useState(null);
+  const [idStreamMap, setIdStreamMap] = useState({});
   const [idScreenStreamMap, setIdScreenStreamMap] = useState(null);
   console.log(userDetails);
 
@@ -94,7 +101,8 @@ export default function Meeting(props) {
         micStatus,
 				userSettings
       },
-      updateUI
+      updateUI,
+      updateMessage
     );
   }, []);
 
@@ -116,6 +124,7 @@ export default function Meeting(props) {
           <ChatBox
             connectionInstance={connectionInstance.current}
             messages={messages}
+            userIds={Object.keys(idStreamMap)}
             setMessages={setMessages}
           />
         )}

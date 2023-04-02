@@ -1,13 +1,30 @@
 import { useState } from "react";
 import { Button } from "@material-tailwind/react/components/Button";
 import ComplexNavbar from "../components/ComplexNavbar";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { createMeeting } from "../actions/meeting";
+import * as api from "../api"
 
 export default function Home() {
+  const navigate = useNavigate()
+  if(localStorage.getItem("profile") && localStorage.getItem("cache-meeting-code")){
+    navigate(`/meeting/${localStorage.getItem("cache-meeting-code")}`)
+  }
   const [open, setOpen] = useState(false);
   const { user } = useSelector((state) => state.auth);
-  const navigate = useNavigate()
+  const dispatch = useDispatch();
+
+  const handleMeeting = async () => {
+    try {
+      let { data } = await api.createMeeting();
+      localStorage.setItem("meeting-details", JSON.stringify({data: data}))
+      navigate("/lobby");
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <div>
       <ComplexNavbar open={open} setOpen={setOpen} />
@@ -22,11 +39,11 @@ export default function Home() {
             </h1>
             <Button
               className="my-4 leading-6 font-semibold text-md"
-              onClick={() => {
+              onClick={async () => {
                 if (!user) {
                   setOpen(true);
                 }else{
-                  navigate("/lobby")
+                  await handleMeeting()
                 }
               }}
             >

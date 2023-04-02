@@ -5,6 +5,7 @@ import { faEllipsisV, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { Input, Button } from "@material-tailwind/react";
 
 export default function ChatBox(props) {
+  // const userIds = props.userIds
   const [message, setMessage] = useState("");
   const profile = JSON.parse(localStorage.getItem("profile"));
 
@@ -94,15 +95,16 @@ export default function ChatBox(props) {
                   className="!absolute right-1 top-1 rounded"
                   onClick={() => {
                     if (props.connectionInstance) {
-                      props.connectionInstance.socket.emit("message", {
+                      props.connectionInstance.socket.emit("broadcast-message", {
                         profile,
                         message,
                         time: time.toLocaleTimeString(),
+                        userId: props.connectionInstance.myId
                       });
                       setMessage("");
                       props.setMessages((prev) => [
                         ...prev,
-                        { profile, message, time: time.toLocaleTimeString() },
+                        { profile, message, time: time.toLocaleTimeString(), myId: props.connectionInstance.myId },
                       ]);
                     }
                   }}

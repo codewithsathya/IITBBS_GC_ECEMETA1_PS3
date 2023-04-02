@@ -15,10 +15,10 @@ function PersonAvatar(){
     )
 }
 
-export default function SelfVideo({video}){
+export default function SelfVideo({cameraTurnedOn}){
     return (
         <div className="w-[60vw] h-[70vh] md:h-[100vh] flex items-center justify-center">
-            {video ? <WebcamComponent /> : <PersonAvatar />}
+            {cameraTurnedOn ? <WebcamComponent /> : <PersonAvatar />}
         </div>
     )
 }

@@ -11,7 +11,7 @@ module.exports = (io) => {
       socket.to(roomId).emit("user-disconnected", userId);
     });
     socket.on("broadcast-message", (message) => {
-      socket.to(roomId).emit("new-broad-message", { ...message, userData });
+      socket.to(roomId).emit("new-broadcast-message", { ...message, userData });
     });
 
     socket.on("display-media", (value) => {

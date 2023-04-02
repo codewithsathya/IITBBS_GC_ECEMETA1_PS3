@@ -5,21 +5,43 @@ import { FaVideo, FaVideoSlash } from "react-icons/fa";
 import { AiOutlineUserAdd, AiFillSetting } from "react-icons/ai";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {IconButton} from "@material-tailwind/react";
+import { MdDelete } from "react-icons/md"
+import * as api from "../api"
 
 export default function Lobby() {
-  const [cameraTurnedOn, setCamera] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [cameraTurnedOn, setCamera] = useState(true);
+  const [showModal, setShowModal] = useState(true);
+
+  const [tempEmail, setTempEmail] = useState("");
+
+  const [emails, setEmails] = useState([]);
+
+  const handleAddEmail = () => {
+    setEmails([...emails, tempEmail])
+    setTempEmail("")
+  }
 
   const toggleCamera = () => {
-    if (cameraTurnedOn) {
-      setCamera(false);
-    } else {
-      setCamera(true);
-    }
+    setCamera(!cameraTurnedOn)
   };
+
+  const handleInvite = async () => {
+    await api.inviteMembers({newMembers: { ids: emails }})
+    setShowModal(false);
+  }
 
   const navigate = useNavigate();
 
+  const handleJoin = () => {
+    let meetingDetails = JSON.parse(localStorage.getItem("meeting-details"))
+    if(!meetingDetails || !meetingDetails.data){
+      navigate("/")
+    }
+    navigate(`/meeting/${meetingDetails.data.code}`)
+  }
+
+  const handleEmailChange = ({ target }) => setTempEmail(target.value);
   return (
     <div>
       {showModal ? (
@@ -42,14 +64,32 @@ export default function Lobby() {
                 </div>
                 {/*body*/}
                 <div className="relative p-6 flex-auto">
-                  <p className="my-4 text-slate-500 text-lg leading-relaxed">
-                    I always felt like I could do anything. That’s the main
-                    thing people are controlled by! Thoughts- their perception
-                    of themselves! They're slowed down by their perception of
-                    themselves. If you're taught you can’t do anything, you
-                    won’t do anything. I was taught I could do everything.
-                  </p>
+                <div className="relative flex w-full max-w-[24rem]">
+                    <Input
+                      type="email"
+                      label="Email Address"
+                      value={tempEmail}
+                      onChange={handleEmailChange}
+                      className="pr-20"
+                      containerProps={{
+                        className: "min-w-0",
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      color={tempEmail ? "blue" : "blue-gray"}
+                      disabled={!tempEmail}
+                      className="!absolute right-1 top-1 rounded"
+                      onClick={handleAddEmail}
+                      >
+                      Add
+                    </Button>
+                  </div>
                 </div>
+                {emails.map(email => <div className="w-full py-2 px-4 flex justify-between">
+                      {email}
+                      <MdDelete onClick={() => setEmails(emails.filter(value => email !== value))}/>
+                </div>)}
                 {/*footer*/}
                 <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
                   <button
@@ -62,7 +102,7 @@ export default function Lobby() {
                   <button
                     className="bg-red-500 text-white active:bg-red-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                     type="button"
-                    onClick={() => setShowModal(false)}
+                    onClick={async () => await handleInvite()}
                   >
                     Save Changes
                   </button>
@@ -74,7 +114,7 @@ export default function Lobby() {
         </>
       ) : null}
       <div className="grid grid-cols-1 md:grid-cols-2">
-        <SelfVideo isTurnedOn={cameraTurnedOn} />
+        <SelfVideo cameraTurnedOn={cameraTurnedOn} />
         <div className="p-4 flex flex-col items-center justify-center h-[30vh] md:h-[100vh] bg-white">
           <div className=" text-blue-gray-900 text-2xl">Join meeting</div>
           <div className="my-4">
@@ -89,7 +129,7 @@ export default function Lobby() {
             <Button
               size="md"
               className="w-[90vw] md:w-[270px]"
-              onClick={() => navigate("/grid")}
+              onClick={handleJoin}
             >
               Join meeting
             </Button>
@@ -99,7 +139,7 @@ export default function Lobby() {
               <BsMicFill />
             </div>
             <div className="p-4" onClick={toggleCamera}>
-              {!cameraTurnedOn ? <FaVideo /> : <FaVideoSlash />}
+              {cameraTurnedOn ? <FaVideo /> : <FaVideoSlash />}
             </div>
             <div className="p-4" onClick={() => setShowModal(true)}>
               <AiOutlineUserAdd />

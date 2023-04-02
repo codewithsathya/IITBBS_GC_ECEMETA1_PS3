@@ -62,6 +62,7 @@ class Connection {
       });
       this.socket.on("new-broadcast-message", (data) => {
         this.message.push(data);
+        this.updateMessage()
         // this.settings.updateInstance('message', this.message)
       });
       this.socket.on("new-screenshare-started", (userData) => {
