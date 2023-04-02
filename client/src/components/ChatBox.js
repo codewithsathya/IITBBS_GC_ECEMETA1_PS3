@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./ChatBox.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisV, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { Input, Button } from "@material-tailwind/react";
 
 export default function ChatBox(props) {
   const [message, setMessage] = useState("");
@@ -68,13 +69,47 @@ export default function ChatBox(props) {
         </div>
         <div className="chat-footer">
           <div className="input-box">
-            <input
+            {/* <input
               type="text"
               placeholder="Type your message..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-            />
-            <button
+            /> */}
+            <div className="relative flex w-full max-w-full">
+                <Input
+                  type="text"
+                  size="lg"
+                  label="Type your message"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="pr-0"
+                  containerProps={{
+                    className: "min-w-0",
+                  }}
+                />
+                <Button
+                  size="sm"
+                  color={message ? "blue" : "blue-gray"}
+                  disabled={!message}
+                  className="!absolute right-1 top-1 rounded"
+                  onClick={() => {
+                    if (props.connectionInstance) {
+                      props.connectionInstance.socket.emit("message", {
+                        profile,
+                        message,
+                        time: time.toLocaleTimeString(),
+                      });
+                      setMessage("");
+                      props.setMessages((prev) => [
+                        ...prev,
+                        { profile, message, time: time.toLocaleTimeString() },
+                      ]);
+                    }
+                  }}
+                >Send
+                </Button>
+              </div>
+            {/* <button
               className="send-icon"
               onClick={() => {
                 if (props.connectionInstance) {
@@ -92,7 +127,7 @@ export default function ChatBox(props) {
               }}
             >
               <FontAwesomeIcon icon={faPaperPlane} />
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
